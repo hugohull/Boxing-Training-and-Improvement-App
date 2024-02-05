@@ -1,6 +1,7 @@
 # importing the modules
 import cv2
 import numpy as np
+import time
 
 # set screen settings
 frameWidth = 960
@@ -19,6 +20,40 @@ cap.set(4, frameHeight)
 
 # Webcam brightness
 cap.set(10, 150)
+
+# Last detection of colour
+last_detection_time = {
+    'red': 0,
+    'blue': 0
+}
+
+# Detection cooldown period
+detection_cooldown = 1  # Adjust as needed
+
+
+# Detection check
+def can_detect_again(color):
+    current_time = time.time()
+    if current_time - last_detection_time[color] > detection_cooldown:
+        last_detection_time[color] = current_time
+        return True
+    return False
+
+# Function to check if rectangle intersects with the line
+def intersects_with_line(x, y, w, h, line_start, line_end):
+    # Create a detection zone around the line
+    # This is a simple approach that considers a vertical strip for the line
+    line_thickness = 10  # You can adjust this based on your line thickness and desired sensitivity
+    line_x_min = min(line_start[0], line_end[0]) - line_thickness
+    line_x_max = max(line_start[0], line_end[0]) + line_thickness
+
+    # Check if any part of the rectangle is within the detection zone of the line
+    if x < line_x_max and x + w > line_x_min:
+        # This means the object is touching or crossing the line in the horizontal direction
+        # Further checks can be added for vertical alignment if necessary
+        return True
+
+    return False
 
 # Main program
 while True:
@@ -55,6 +90,27 @@ while True:
         area = cv2.contourArea(cnt)
         if area > 400:
             x, y, w, h = cv2.boundingRect(cnt)
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
+
+    # Red detection
+    for cnt in contours_red:
+        area = cv2.contourArea(cnt)
+        if area > 400:
+            x, y, w, h = cv2.boundingRect(cnt)
+            if intersects_with_line(x, y, w, h, START, END):
+                if can_detect_again('red'):
+                    print("Red object touching the line detected")
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
+
+    # Find contours and draw them for blue
+    contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    for cnt in contours_blue:
+        area = cv2.contourArea(cnt)
+        if area > 400:
+            x, y, w, h = cv2.boundingRect(cnt)
+            if intersects_with_line(x, y, w, h, START, END):
+                if can_detect_again('blue'):
+                    print("Blue object touching the line detected")
             cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
     # Add line
