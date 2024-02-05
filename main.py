@@ -63,47 +63,6 @@ def start():
 
     play_sound(ding)
 
-# def start():
-#     rounds = int(round_input.get())
-#
-#     while rounds > 0:
-#
-#         # Method for rest
-#         work()
-#
-#         # Method for rest
-#         rest()
-#
-#         rounds -= 1
-#
-#     play_sound(ding)
-#
-#
-# def work():
-#     print("work")
-#
-#
-# def rest():
-#     rest_seconds = int(rest_input.get())
-#     print("rest")
-#
-#     def update_label():
-#         nonlocal rest_seconds
-#
-#         if rest_seconds > 0:
-#             timer = timedelta(seconds=rest_seconds)
-#             timer_str = (datetime(1970, 1, 1) + timer).strftime("%M:%S")
-#
-#             # Update label
-#             round_timer_label.configure(text=timer_str)
-#
-#             rest_seconds -= 1
-#
-#             # Schedule the update after 1000 milliseconds (1 second)
-#             round_timer_label.after(1000, update_label)
-#
-#     # Initial call to start the timer
-#     update_label()
 
 
 def play_sound(sound):
