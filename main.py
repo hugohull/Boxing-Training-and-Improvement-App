@@ -64,7 +64,6 @@ def start():
     play_sound(ding)
 
 
-
 def play_sound(sound):
     play(sound)
 

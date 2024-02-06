@@ -39,18 +39,16 @@ def can_detect_again(color):
         return True
     return False
 
+
 # Function to check if rectangle intersects with the line
 def intersects_with_line(x, y, w, h, line_start, line_end):
     # Create a detection zone around the line
-    # This is a simple approach that considers a vertical strip for the line
     line_thickness = 10  # You can adjust this based on your line thickness and desired sensitivity
     line_x_min = min(line_start[0], line_end[0]) - line_thickness
     line_x_max = max(line_start[0], line_end[0]) + line_thickness
 
     # Check if any part of the rectangle is within the detection zone of the line
     if x < line_x_max and x + w > line_x_min:
-        # This means the object is touching or crossing the line in the horizontal direction
-        # Further checks can be added for vertical alignment if necessary
         return True
 
     return False
