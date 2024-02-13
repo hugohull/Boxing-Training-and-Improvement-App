@@ -22,7 +22,7 @@ def update_timer(seconds, type='work'):
     if seconds > 0:
         timer_str = f"{seconds // 60:02d}:{seconds % 60:02d}"
         round_timer_label.config(text=timer_str)
-        print(seconds)
+        # print(seconds)
         window.after(1000, update_timer, seconds-1, type)
     else:
         if type == 'work':
@@ -65,11 +65,10 @@ window.minsize(width=854, height=480)
 # Timer Label
 round_timer_label = Label(text="Round Timer", font=FONT)
 round_timer_label.grid(row=0, column=1)
-# round_timer_label.config(padx=10)
 
 # Round number input
 round_input = Entry(window)
-round_input.grid(row=1, column=0)
+round_input.grid(row=1, column=0, padx=(140, 0o1))
 # round_input.insert(END, "Enter number of rounds.")
 round_input.insert(END, "3")
 
