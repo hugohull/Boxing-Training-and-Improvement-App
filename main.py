@@ -93,4 +93,7 @@ round_timer_label.config(padx=10)
 start_button = Button(text="Start Timer", font="bold", command=start)
 start_button.grid(row=3, column=1)
 
+start_with_video_button = Button(text="Start Timer With Video", font="bold", command=start)
+start_with_video_button.grid(row=4, column=1)
+
 window.mainloop()
