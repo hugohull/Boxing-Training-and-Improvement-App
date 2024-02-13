@@ -1,76 +1,66 @@
-import threading
 from tkinter import *
-import time
-from _datetime import datetime, timedelta
+import threading
 from pydub import AudioSegment
 from pydub.playback import play
 
 FONT = ("Calibri", 14)
-
 ding = AudioSegment.from_mp3("Audio/Boxing Bell Sound.mp3")
 
 
 def start():
+    global rounds
     rounds = int(round_input.get())
-
-    while rounds > 0:
-        sound_thread = threading.Thread(target=play_sound, args=(ding,))
-        sound_thread.start()
-
-        round_seconds = int(work_input.get())
-
-        # Work round
-        while round_seconds > 0:
-            # # Timer represents time left on countdown
-            # timer = timedelta(seconds=round_seconds)
-            # timer_str = (datetime(1970, 1, 1) + timer).strftime("%M:%S")
-            #
-            # # Update label
-            # round_timer_label.config(text=timer_str)
-
-            print(round_seconds)
-
-            # Delays the program one second
-            time.sleep(1)
-            round_seconds -= 1
-
-        sound_thread.join()
-
-        # Start of rest round
-        sound_thread = threading.Thread(target=play_sound, args=(ding,))
-        sound_thread.start()
-
-        rest_seconds = int(rest_input.get())
-
-        # Work round
-        while rest_seconds > 0:
-            # Timer represents time left on countdown
-            # timer = timedelta(seconds=rest_seconds)
-            # timer_str = (datetime(1970, 1, 1) + timer).strftime("%M:%S")
-            #
-            # # Update label
-            # round_timer_label.configure(text=timer_str)
-            # print(timer_str)
-            print(rest_seconds)
-
-            # Delays the program one second
-            time.sleep(1)
-            rest_seconds -= 1
-
-        sound_thread.join()
-
-        rounds -= 1
-
-    play_sound(ding)
+    start_work()  # Start first work round
 
 
-def play_sound(sound):
-    play(sound)
+def play_sound():
+    # Using a thread to avoid blocking the GUI while playing sound
+    threading.Thread(target=lambda: play(ding), daemon=True).start()
+
+
+def update_timer(seconds, type='work'):
+    if seconds > 0:
+        timer_str = f"{seconds // 60:02d}:{seconds % 60:02d}"
+        round_timer_label.config(text=timer_str)
+        print(seconds)
+        window.after(1000, update_timer, seconds-1, type)
+    else:
+        if type == 'work':
+            # Transition to rest period, play sound to indicate start
+            play_sound()
+            start_rest()
+        else:
+            # End of rest period, check if there are more rounds
+            next_round()
+
+
+def start_rest():
+    rest_seconds = int(rest_input.get())
+    # No need to play sound here, it's already played at transition
+    update_timer(rest_seconds, 'rest')
+
+
+def start_work():
+    round_seconds = int(work_input.get())
+    # Play sound to indicate the start of work round
+    play_sound()
+    update_timer(round_seconds, 'work')
+
+
+def next_round():
+    global rounds
+    rounds -= 1
+    if rounds > 0:
+        start_work()  # Start next work round
+    else:
+        # All rounds completed, play sound to indicate end of session
+        play_sound()
+        round_timer_label.config(text="Done!")
 
 
 window = Tk()
 window.title("Boxing App")
-window.minsize(width=1300, height=800)
+window.minsize(width=854, height=480)
 
 # Timer Label
 round_timer_label = Label(text="Round Timer", font=FONT)
@@ -78,19 +68,19 @@ round_timer_label.grid(row=0, column=1)
 # round_timer_label.config(padx=10)
 
 # Round number input
-round_input = Entry()
+round_input = Entry(window)
 round_input.grid(row=1, column=0)
 # round_input.insert(END, "Enter number of rounds.")
 round_input.insert(END, "3")
 
 # Round timer input
-work_input = Entry()
+work_input = Entry(window)
 work_input.grid(row=1, column=1)
 # work_input.insert(END, "Enter round time (s).")
 work_input.insert(END, "30")
 
 # Rest timer input
-rest_input = Entry()
+rest_input = Entry(window)
 rest_input.grid(row=1, column=2)
 # rest_input.insert(END, "Enter rest time (s).")
 rest_input.insert(END, "30")

@@ -28,7 +28,7 @@ last_detection_time = {
 }
 
 # Detection cooldown period
-detection_cooldown = 1  # Adjust as needed
+detection_cooldown = 0.5  # Adjust as needed
 
 
 # Detection check
@@ -97,7 +97,7 @@ while True:
             x, y, w, h = cv2.boundingRect(cnt)
             if intersects_with_line(x, y, w, h, START, END):
                 if can_detect_again('red'):
-                    print("Red object touching the line detected")
+                    print("Red object detected (Jab)")
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
 
     # Find contours and draw them for blue
@@ -108,7 +108,7 @@ while True:
             x, y, w, h = cv2.boundingRect(cnt)
             if intersects_with_line(x, y, w, h, START, END):
                 if can_detect_again('blue'):
-                    print("Blue object touching the line detected")
+                    print("Blue object touching the line detected (Backhand)")
             cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
     # Add line
