@@ -2,6 +2,7 @@ from tkinter import *
 import threading
 from pydub import AudioSegment
 from pydub.playback import play
+from punch_tracker import run_punch_tracker
 
 FONT = ("Calibri", 14)
 ding = AudioSegment.from_mp3("Audio/Boxing Bell Sound.mp3")
@@ -57,6 +58,9 @@ def next_round():
         play_sound()
         round_timer_label.config(text="Done!")
 
+def start_video_tracking():
+    threading.Thread(target=run_punch_tracker, daemon=True).start()
+
 
 window = Tk()
 window.title("Boxing App")
@@ -93,7 +97,7 @@ round_timer_label.config(padx=10)
 start_button = Button(text="Start Timer", font="bold", command=start)
 start_button.grid(row=3, column=1)
 
-start_with_video_button = Button(text="Start Timer With Video", font="bold")
+start_with_video_button = Button(text="Start Timer With Video", font="bold", command=start_video_tracking)
 start_with_video_button.grid(row=4, column=1)
 
 window.mainloop()
