@@ -23,7 +23,7 @@ def update_timer(seconds, type='work'):
         timer_str = f"{seconds // 60:02d}:{seconds % 60:02d}"
         round_timer_label.config(text=timer_str)
         # print(seconds)
-        window.after(1000, update_timer, seconds-1, type)
+        window.after(1000, update_timer, seconds - 1, type)
     else:
         if type == 'work':
             # Transition to rest period, play sound to indicate start
@@ -93,7 +93,7 @@ round_timer_label.config(padx=10)
 start_button = Button(text="Start Timer", font="bold", command=start)
 start_button.grid(row=3, column=1)
 
-start_with_video_button = Button(text="Start Timer With Video", font="bold", command=start)
+start_with_video_button = Button(text="Start Timer With Video", font="bold")
 start_with_video_button.grid(row=4, column=1)
 
 window.mainloop()
