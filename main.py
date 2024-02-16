@@ -58,7 +58,11 @@ def next_round():
         play_sound()
         round_timer_label.config(text="Done!")
 
-def start_video_tracking():
+
+def start_timer_and_video():
+    # Start the timer in a separate thread
+    threading.Thread(target=start, daemon=True).start()
+    # Start the video tracking in a separate thread
     threading.Thread(target=run_punch_tracker, daemon=True).start()
 
 
@@ -97,7 +101,7 @@ round_timer_label.config(padx=10)
 start_button = Button(text="Start Timer", font="bold", command=start)
 start_button.grid(row=3, column=1)
 
-start_with_video_button = Button(text="Start Timer With Video", font="bold", command=start_video_tracking)
+start_with_video_button = Button(text="Start Timer With Video", font="bold", command=start_timer_and_video)
 start_with_video_button.grid(row=4, column=1)
 
 window.mainloop()

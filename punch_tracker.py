@@ -53,6 +53,7 @@ def intersects_with_line(x, y, w, h, line_start, line_end):
 
     return False
 
+
 def run_punch_tracker():
     # Main program
     while True:
@@ -124,3 +125,5 @@ def run_punch_tracker():
 
     cap.release()
     cv2.destroyAllWindows()
+
+# run_punch_tracker()
