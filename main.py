@@ -61,9 +61,10 @@ def next_round():
 
 def start_timer_and_video():
     # Start the timer in a separate thread
-    threading.Thread(target=start, daemon=True).start()
+    # threading.Thread(target=start, daemon=True).start()
     # Start the video tracking in a separate thread
-    threading.Thread(target=run_punch_tracker, daemon=True).start()
+    run_punch_tracker()
+    start()
 
 
 window = Tk()

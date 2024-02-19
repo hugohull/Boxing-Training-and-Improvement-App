@@ -68,9 +68,12 @@ def run_punch_tracker():
         lower_red1 = np.array([170, 75, 50])
         upper_red1 = np.array([180, 255, 255])
 
-        # Blue color range
-        lower_blue = np.array([100, 75, 50])
-        upper_blue = np.array([120, 255, 255])
+        # # Adjusted Blue color range
+        # lower_blue = np.array([90, 75, 50])  # Lower H value to include lighter blues
+        # upper_blue = np.array([140, 255, 255])  # Higher H value to include darker blues
+        # More sensitive Blue color range
+        lower_blue = np.array([85, 50, 40])  # Further lower H value and reduce S and V for lighter blues
+        upper_blue = np.array([145, 255, 255])  # Further higher H value to include even darker blues
 
         # Create masks for red and blue
         mask_red = cv2.inRange(hsv, lower_red1, upper_red1)
@@ -82,7 +85,8 @@ def run_punch_tracker():
             area = cv2.contourArea(cnt)
             if area > 400:
                 x, y, w, h = cv2.boundingRect(cnt)
-                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
+                if x > frameWidth / 2:
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
 
         # Find contours and draw them for blue
         contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -90,17 +94,19 @@ def run_punch_tracker():
             area = cv2.contourArea(cnt)
             if area > 400:
                 x, y, w, h = cv2.boundingRect(cnt)
-                cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
+                if x > frameWidth / 2:
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
         # Red detection
         for cnt in contours_red:
             area = cv2.contourArea(cnt)
             if area > 400:
                 x, y, w, h = cv2.boundingRect(cnt)
-                if intersects_with_line(x, y, w, h, START, END):
-                    if can_detect_again('red'):
-                        print("Red object detected (Jab)")
-                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
+                if x > frameWidth / 2:
+                    if intersects_with_line(x, y, w, h, START, END):
+                        if can_detect_again('red'):
+                            print("Red object detected (Jab)")
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
 
         # Find contours and draw them for blue
         contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -108,16 +114,20 @@ def run_punch_tracker():
             area = cv2.contourArea(cnt)
             if area > 400:
                 x, y, w, h = cv2.boundingRect(cnt)
-                if intersects_with_line(x, y, w, h, START, END):
-                    if can_detect_again('blue'):
-                        print("Blue object touching the line detected (Backhand)")
-                cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
+                if x > frameWidth / 2:
+                    if intersects_with_line(x, y, w, h, START, END):
+                        if can_detect_again('blue'):
+                            print("Blue object touching the line detected (Backhand)")
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
         # Add line
         cv2.line(img, START, END, COLOUR, THICKNESS)
 
+        # Image flipped
+        flip_img = cv2.flip(img, 1)
+
         # displaying output on Screen
-        cv2.imshow("Punch Tracker", img)
+        cv2.imshow("Punch Tracker", flip_img)
 
         # condition to break programs execution
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -125,5 +135,3 @@ def run_punch_tracker():
 
     cap.release()
     cv2.destroyAllWindows()
-
-# run_punch_tracker()
