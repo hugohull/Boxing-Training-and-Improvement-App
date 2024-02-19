@@ -54,7 +54,7 @@ def intersects_with_line(x, y, w, h, line_start, line_end):
     return False
 
 
-def run_punch_tracker():
+def run_punch_tracker(update_gui_func=None):
     # Main program
     while True:
         success, img = cap.read()
@@ -127,7 +127,11 @@ def run_punch_tracker():
         flip_img = cv2.flip(img, 1)
 
         # displaying output on Screen
-        cv2.imshow("Punch Tracker", flip_img)
+        # cv2.imshow("Punch Tracker", flip_img)
+
+        # If there's a function to update the GUI, call it with the current frame
+        if update_gui_func is not None:
+            update_gui_func(img)
 
         # condition to break programs execution
         if cv2.waitKey(1) & 0xFF == ord('q'):

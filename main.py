@@ -1,5 +1,8 @@
 from tkinter import *
 import threading
+
+import cv2
+from PIL import Image, ImageTk
 from pydub import AudioSegment
 from pydub.playback import play
 from punch_tracker import run_punch_tracker
@@ -59,12 +62,36 @@ def next_round():
         round_timer_label.config(text="Done!")
 
 
+# Add this global variable to hold the video frame update function
+update_video_func = None
+
+
+def convert_cv2_image_to_tkinter(img):
+    """Convert an OpenCV BGR image to a Tkinter-compatible photo image."""
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
+    im = Image.fromarray(img)
+    imgtk = ImageTk.PhotoImage(image=im)
+    return imgtk
+
+
+def update_video_label(img):
+    """Update the video label with a new image."""
+    imgtk = convert_cv2_image_to_tkinter(img)
+    video_label.imgtk = imgtk  # Keep a reference so it's not garbage collected
+    video_label.configure(image=imgtk)
+
+
+# This function will be called to start the video capture and the timer concurrently
 def start_timer_and_video():
-    # Start the timer in a separate thread
-    # threading.Thread(target=start, daemon=True).start()
+    # Set the function to update video frames in the main GUI thread
+    global update_video_func
+    update_video_func = lambda frame: window.after(0, update_video_label, frame)
+
     # Start the video tracking in a separate thread
-    run_punch_tracker()
-    start()
+    threading.Thread(target=run_punch_tracker, args=(update_video_func,), daemon=True).start()
+
+    # Start the timer
+    threading.Thread(target=start, daemon=True).start()
 
 
 window = Tk()
@@ -104,5 +131,8 @@ start_button.grid(row=3, column=1)
 
 start_with_video_button = Button(text="Start Timer With Video", font="bold", command=start_timer_and_video)
 start_with_video_button.grid(row=4, column=1)
+
+video_label = Label(window)
+video_label.grid(row=5, column=1)
 
 window.mainloop()
