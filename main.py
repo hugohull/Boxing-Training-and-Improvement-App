@@ -1,138 +1,96 @@
-from tkinter import *
+import sys
 import threading
-
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout
+from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, Qt
+from PyQt5.QtGui import QPixmap, QImage
 import cv2
-from PIL import Image, ImageTk
 from pydub import AudioSegment
 from pydub.playback import play
-from punch_tracker import run_punch_tracker
+from punch_tracker import run_punch_tracker  # Make sure punch_tracker is adapted to PyQt as well
 
-FONT = ("Calibri", 14)
 ding = AudioSegment.from_mp3("Audio/Boxing Bell Sound.mp3")
 
 
-def start():
-    global rounds
-    rounds = int(round_input.get())
-    start_work()  # Start first work round
+class VideoThread(QThread):
+    change_pixmap_signal = pyqtSignal(QImage)
+
+    def run(self):
+        self.running = True
+        run_punch_tracker(self.update_frame)
+
+    def stop(self):
+        self.running = False
+        self.wait()
+
+    def update_frame(self, frame):
+        # Convert frame to format suitable for QtGui
+        rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgb_image.shape
+        bytes_per_line = ch * w
+        convert_to_Qt_format = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
+        p = convert_to_Qt_format.scaled(640, 480, aspectRatioMode=Qt.KeepAspectRatio)
+        self.change_pixmap_signal.emit(p)
 
 
-def play_sound():
-    # Using a thread to avoid blocking the GUI while playing sound
-    threading.Thread(target=lambda: play(ding), daemon=True).start()
+class App(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.title = 'Boxing App'
+        self.left = 10
+        self.top = 10
+        self.width = 640
+        self.height = 480
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+
+        # Layouts
+        vbox = QVBoxLayout()
+        hbox = QHBoxLayout()
+
+        # Widgets
+        self.image_label = QLabel(self)
+        self.round_input = QLineEdit(self)
+        self.round_input.setText("3")
+        self.work_input = QLineEdit(self)
+        self.work_input.setText("30")
+        self.rest_input = QLineEdit(self)
+        self.rest_input.setText("30")
+        start_button = QPushButton('Start Timer', self)
+        start_button.clicked.connect(self.start_timer)
+        start_with_video_button = QPushButton('Start Timer With Video', self)
+        start_with_video_button.clicked.connect(self.start_timer_and_video)
+
+        # Adding widgets to layouts
+        hbox.addWidget(self.round_input)
+        hbox.addWidget(self.work_input)
+        hbox.addWidget(self.rest_input)
+        vbox.addLayout(hbox)
+        vbox.addWidget(start_button)
+        vbox.addWidget(start_with_video_button)
+        vbox.addWidget(self.image_label)
+
+        self.setLayout(vbox)
+        self.show()
+
+    @pyqtSlot(QImage)
+    def set_image(self, image):
+        self.image_label.setPixmap(QPixmap.fromImage(image))
+
+    def start_timer(self):
+        # Logic to start the timer
+        pass
+
+    def start_timer_and_video(self):
+        # Start the video thread
+        self.thread = VideoThread()
+        self.thread.change_pixmap_signal.connect(self.set_image)
+        self.thread.start()
 
 
-def update_timer(seconds, type='work'):
-    if seconds > 0:
-        timer_str = f"{seconds // 60:02d}:{seconds % 60:02d}"
-        round_timer_label.config(text=timer_str)
-        # print(seconds)
-        window.after(1000, update_timer, seconds - 1, type)
-    else:
-        if type == 'work':
-            # Transition to rest period, play sound to indicate start
-            play_sound()
-            start_rest()
-        else:
-            # End of rest period, check if there are more rounds
-            next_round()
-
-
-def start_rest():
-    rest_seconds = int(rest_input.get())
-    # No need to play sound here, it's already played at transition
-    update_timer(rest_seconds, 'rest')
-
-
-def start_work():
-    round_seconds = int(work_input.get())
-    # Play sound to indicate the start of work round
-    play_sound()
-    update_timer(round_seconds, 'work')
-
-
-def next_round():
-    global rounds
-    rounds -= 1
-    if rounds > 0:
-        start_work()  # Start next work round
-    else:
-        # All rounds completed, play sound to indicate end of session
-        play_sound()
-        round_timer_label.config(text="Done!")
-
-
-# Add this global variable to hold the video frame update function
-update_video_func = None
-
-
-def convert_cv2_image_to_tkinter(img):
-    """Convert an OpenCV BGR image to a Tkinter-compatible photo image."""
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
-    im = Image.fromarray(img)
-    imgtk = ImageTk.PhotoImage(image=im)
-    return imgtk
-
-
-def update_video_label(img):
-    """Update the video label with a new image."""
-    imgtk = convert_cv2_image_to_tkinter(img)
-    video_label.imgtk = imgtk  # Keep a reference so it's not garbage collected
-    video_label.configure(image=imgtk)
-
-
-# This function will be called to start the video capture and the timer concurrently
-def start_timer_and_video():
-    # Set the function to update video frames in the main GUI thread
-    global update_video_func
-    update_video_func = lambda frame: window.after(0, update_video_label, frame)
-
-    # Start the video tracking in a separate thread
-    threading.Thread(target=run_punch_tracker, args=(update_video_func,), daemon=True).start()
-
-    # Start the timer
-    threading.Thread(target=start, daemon=True).start()
-
-
-window = Tk()
-window.title("Boxing App")
-window.minsize(width=854, height=480)
-
-# Timer Label
-round_timer_label = Label(text="Round Timer", font=FONT)
-round_timer_label.grid(row=0, column=1)
-
-# Round number input
-round_input = Entry(window)
-round_input.grid(row=1, column=0, padx=(140, 0o1))
-# round_input.insert(END, "Enter number of rounds.")
-round_input.insert(END, "3")
-
-# Round timer input
-work_input = Entry(window)
-work_input.grid(row=1, column=1)
-# work_input.insert(END, "Enter round time (s).")
-work_input.insert(END, "30")
-
-# Rest timer input
-rest_input = Entry(window)
-rest_input.grid(row=1, column=2)
-# rest_input.insert(END, "Enter rest time (s).")
-rest_input.insert(END, "30")
-
-# Timer Label
-round_timer_label = Label(text="00:00", font=FONT)
-round_timer_label.grid(row=2, column=1)
-round_timer_label.config(padx=10)
-
-# Start button
-start_button = Button(text="Start Timer", font="bold", command=start)
-start_button.grid(row=3, column=1)
-
-start_with_video_button = Button(text="Start Timer With Video", font="bold", command=start_timer_and_video)
-start_with_video_button.grid(row=4, column=1)
-
-video_label = Label(window)
-video_label.grid(row=5, column=0, columnspan=3)
-
-window.mainloop()
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = App()
+    sys.exit(app.exec_())
