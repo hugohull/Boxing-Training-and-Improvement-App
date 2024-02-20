@@ -133,6 +133,6 @@ start_with_video_button = Button(text="Start Timer With Video", font="bold", com
 start_with_video_button.grid(row=4, column=1)
 
 video_label = Label(window)
-video_label.grid(row=5, column=1)
+video_label.grid(row=5, column=0, columnspan=3)
 
 window.mainloop()

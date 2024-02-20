@@ -68,10 +68,7 @@ def run_punch_tracker(update_gui_func=None):
         lower_red1 = np.array([170, 75, 50])
         upper_red1 = np.array([180, 255, 255])
 
-        # # Adjusted Blue color range
-        # lower_blue = np.array([90, 75, 50])  # Lower H value to include lighter blues
-        # upper_blue = np.array([140, 255, 255])  # Higher H value to include darker blues
-        # More sensitive Blue color range
+        # Adjusted Blue color range
         lower_blue = np.array([85, 50, 40])  # Further lower H value and reduce S and V for lighter blues
         upper_blue = np.array([145, 255, 255])  # Further higher H value to include even darker blues
 
@@ -131,11 +128,11 @@ def run_punch_tracker(update_gui_func=None):
 
         # If there's a function to update the GUI, call it with the current frame
         if update_gui_func is not None:
-            update_gui_func(img)
+            update_gui_func(flip_img)
 
-        # condition to break programs execution
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # # condition to break programs execution
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
 
     cap.release()
     cv2.destroyAllWindows()
