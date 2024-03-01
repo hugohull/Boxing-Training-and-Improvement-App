@@ -1,6 +1,6 @@
 import sys
 import threading
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFormLayout
 from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, Qt, QTimer
 from PyQt5.QtGui import QPixmap, QImage
 import cv2
@@ -38,8 +38,8 @@ class App(QWidget):
         self.title = 'Boxing App'
         self.left = 10
         self.top = 10
-        self.width = 640
-        self.height = 480
+        self.width = 800
+        self.height = 600
         self.rounds = 0
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
@@ -50,35 +50,51 @@ class App(QWidget):
         self.setGeometry(self.left, self.top, self.width, self.height)
 
         # Layouts
-        vbox = QVBoxLayout()
-        hbox = QHBoxLayout()
+        main_layout = QVBoxLayout()
+        form_layout = QFormLayout()
+        buttons_layout = QHBoxLayout()
 
         # Widgets
         self.image_label = QLabel(self)
         self.round_input = QLineEdit(self)
-        self.round_input.setText("3")
         self.work_input = QLineEdit(self)
-        self.work_input.setText("30")
         self.rest_input = QLineEdit(self)
-        self.rest_input.setText("30")
         self.timer_label = QLabel('00:00', self)
+        self.timer_label.setAlignment(Qt.AlignCenter)
+        self.timer_label.setStyleSheet("font-size: 30px; font-weight: bold;")
         self.start_button = QPushButton('Start Timer', self)
         self.start_button.clicked.connect(self.start_timer)
         self.thread = None
         self.start_with_video_button = QPushButton('Start Timer With Video', self)
         self.start_with_video_button.clicked.connect(self.start_timer_and_video)
 
-        # Adding widgets to layouts
-        hbox.addWidget(self.round_input)
-        hbox.addWidget(self.work_input)
-        hbox.addWidget(self.rest_input)
-        vbox.addLayout(hbox)
-        vbox.addWidget(self.start_button)
-        vbox.addWidget(self.start_with_video_button)
-        vbox.addWidget(self.timer_label)
-        vbox.addWidget(self.image_label)
+        # Setting placeholders
+        # self.round_input.setPlaceholderText("Enter number of rounds.")
+        # self.work_input.setPlaceholderText("Enter number of seconds (Work).")
+        # self.rest_input.setPlaceholderText("Enter number of seconds (Rest).")
+        self.round_input.setText("3")
+        self.work_input.setText("30")
+        self.rest_input.setText("30")
 
-        self.setLayout(vbox)
+        # Add the timer label
+        main_layout.addWidget(self.timer_label)
+
+        # Form layout for inputs
+        form_layout.addRow('Rounds:', self.round_input)
+        form_layout.addRow('Work Time (sec):', self.work_input)
+        form_layout.addRow('Rest Time (sec):', self.rest_input)
+
+        # Buttons layout
+        buttons_layout.addWidget(self.start_button)
+        buttons_layout.addWidget(self.start_with_video_button)
+
+        # Adding widgets to main layout
+        main_layout.addLayout(form_layout)
+        main_layout.addLayout(buttons_layout)
+        main_layout.addWidget(self.image_label)
+
+        # Set main layout on the application window
+        self.setLayout(main_layout)
         self.show()
 
     def play_sound(self):
@@ -148,6 +164,7 @@ class App(QWidget):
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.start()
         self.image_label.show()
+        self.image_label.setAlignment(Qt.AlignCenter)
 
 
 if __name__ == '__main__':
