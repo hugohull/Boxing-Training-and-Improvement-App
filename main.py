@@ -63,8 +63,8 @@ class App(QWidget):
         self.start_button = QPushButton('Start Timer', self)
         self.start_button.clicked.connect(self.start_timer)
         self.thread = None
-        start_with_video_button = QPushButton('Start Timer With Video', self)
-        start_with_video_button.clicked.connect(self.start_timer_and_video)
+        self.start_with_video_button = QPushButton('Start Timer With Video', self)
+        self.start_with_video_button.clicked.connect(self.start_timer_and_video)
 
         # Adding widgets to layouts
         hbox.addWidget(self.round_input)
@@ -72,7 +72,7 @@ class App(QWidget):
         hbox.addWidget(self.rest_input)
         vbox.addLayout(hbox)
         vbox.addWidget(self.start_button)
-        vbox.addWidget(start_with_video_button)
+        vbox.addWidget(self.start_with_video_button)
         vbox.addWidget(self.timer_label)
         vbox.addWidget(self.image_label)
 
@@ -121,6 +121,7 @@ class App(QWidget):
         self.start_button.setText('Stop Timer')  # Change the button text to 'Stop Timer'
         self.start_button.clicked.disconnect()
         self.start_button.clicked.connect(self.stop_timer)
+        self.start_with_video_button.hide()
 
     def stop_timer(self):
         self.timer.stop()  # Stop the timer
@@ -128,6 +129,7 @@ class App(QWidget):
         self.start_button.setText('Start Timer')  # Change the button text to 'Start Timer'
         self.start_button.clicked.disconnect()
         self.start_button.clicked.connect(self.start_timer)
+        self.start_with_video_button.show()
     @pyqtSlot(QImage)
     def set_image(self, image):
         self.image_label.setPixmap(QPixmap.fromImage(image))
