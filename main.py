@@ -2,7 +2,7 @@ import sys
 import threading
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFormLayout
 from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, Qt, QTimer
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import QPixmap, QImage, QIntValidator
 import cv2
 from pydub import AudioSegment
 from pydub.playback import play
@@ -35,12 +35,13 @@ class VideoThread(QThread):
 class App(QWidget):
     def __init__(self):
         super().__init__()
+        self.current_round = 1
+        self.rounds = 12
         self.title = 'Boxing App'
         self.left = 10
         self.top = 10
         self.width = 800
         self.height = 600
-        self.rounds = 0
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
         self.initUI()
@@ -67,6 +68,17 @@ class App(QWidget):
         self.thread = None
         self.start_with_video_button = QPushButton('Start Timer With Video', self)
         self.start_with_video_button.clicked.connect(self.start_timer_and_video)
+        self.round_label = QLabel(f'Round {self.current_round:02}/{self.rounds}', self)
+        self.round_label.setAlignment(Qt.AlignCenter)
+        self.round_label.setStyleSheet("font-size: 24px; font-weight: bold;")
+
+        # Validators
+        self.round_validator = QIntValidator(1, 99, self)  # Assuming a reasonable range for rounds is 1 to 99
+        self.time_validator = QIntValidator(1, 300, self)  # Assuming a reasonable range for time is 1 to 3600 seconds
+
+        self.round_input.setValidator(self.round_validator)
+        self.work_input.setValidator(self.time_validator)
+        self.rest_input.setValidator(self.time_validator)
 
         # Setting placeholders
         # self.round_input.setPlaceholderText("Enter number of rounds.")
@@ -76,8 +88,9 @@ class App(QWidget):
         self.work_input.setText("30")
         self.rest_input.setText("30")
 
-        # Add the timer label
+        # Add the timer label & round label
         main_layout.addWidget(self.timer_label)
+        main_layout.addWidget(self.round_label)
 
         # Form layout for inputs
         form_layout.addRow('Rounds:', self.round_input)
@@ -118,20 +131,24 @@ class App(QWidget):
         self.seconds_left = int(self.work_input.text())
         self.play_sound()
         self.timer.start(1000)
+        self.update_round_label()
 
     def start_rest(self):
         self.current_phase = 'rest'
         self.seconds_left = int(self.rest_input.text())
         self.play_sound()
         self.timer.start(1000)
+        self.update_round_label()
 
     def next_round(self):
         self.rounds -= 1
         if self.rounds > 0:
+            self.current_round += 1
             self.start_work()
         else:
             self.play_sound()
             self.timer_label.setText("Done!")
+            self.update_round_label()
 
     def start_timer(self):
         self.rounds = int(self.round_input.text())
@@ -140,6 +157,7 @@ class App(QWidget):
         self.start_button.clicked.disconnect()
         self.start_button.clicked.connect(self.stop_timer)
         self.start_with_video_button.hide()
+        self.update_round_label()
 
     def stop_timer(self):
         self.timer.stop()  # Stop the timer
@@ -149,6 +167,10 @@ class App(QWidget):
         self.start_button.clicked.connect(self.start_timer)
         self.start_with_video_button.show()
         self.image_label.hide()
+
+    def update_round_label(self):
+        # Update the text of round_label to reflect the current state
+        self.round_label.setText(f'Round {self.current_round:02}/{self.rounds}')
 
     @pyqtSlot(QImage)
     def set_image(self, image):
