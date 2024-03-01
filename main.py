@@ -60,8 +60,9 @@ class App(QWidget):
         self.rest_input = QLineEdit(self)
         self.rest_input.setText("30")
         self.timer_label = QLabel('00:00', self)
-        start_button = QPushButton('Start Timer', self)
-        start_button.clicked.connect(self.start_timer)
+        self.start_button = QPushButton('Start Timer', self)
+        self.start_button.clicked.connect(self.start_timer)
+        self.thread = None
         start_with_video_button = QPushButton('Start Timer With Video', self)
         start_with_video_button.clicked.connect(self.start_timer_and_video)
 
@@ -70,7 +71,7 @@ class App(QWidget):
         hbox.addWidget(self.work_input)
         hbox.addWidget(self.rest_input)
         vbox.addLayout(hbox)
-        vbox.addWidget(start_button)
+        vbox.addWidget(self.start_button)
         vbox.addWidget(start_with_video_button)
         vbox.addWidget(self.timer_label)
         vbox.addWidget(self.image_label)
@@ -117,19 +118,32 @@ class App(QWidget):
     def start_timer(self):
         self.rounds = int(self.round_input.text())
         self.start_work()
+        self.start_button.setText('Stop Timer')  # Change the button text to 'Stop Timer'
+        self.start_button.clicked.disconnect()
+        self.start_button.clicked.connect(self.stop_timer)
 
+    def stop_timer(self):
+        self.timer.stop()  # Stop the timer
+        self.timer_label.setText("Stopped")  # Change the label
+        self.start_button.setText('Start Timer')  # Change the button text to 'Start Timer'
+        self.start_button.clicked.disconnect()
+        self.start_button.clicked.connect(self.start_timer)
     @pyqtSlot(QImage)
     def set_image(self, image):
         self.image_label.setPixmap(QPixmap.fromImage(image))
 
     def start_timer_and_video(self):
-        self.start_timer()  # Start the timer
-        self.thread = VideoThread()  # Start the video thread
-        self.thread.change_pixmap_signal.connect(self.set_image)
-        self.thread.start()
+        # Start the timer
+        self.start_timer()
+        # Check if the video thread does not exist or is not running
+        if self.thread is None or not self.thread.isRunning():
+            # Create and start the thread if it doesn't exist or is not running
+            self.thread = VideoThread()
+            self.thread.change_pixmap_signal.connect(self.set_image)
+            self.thread.start()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()
     sys.exit(app.exec_())
-
