@@ -10,6 +10,7 @@ from punch_tracker import run_punch_tracker  # Make sure punch_tracker is adapte
 
 ding = AudioSegment.from_mp3("Audio/Boxing Bell Sound.mp3")
 
+
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(QImage)
 
@@ -29,6 +30,7 @@ class VideoThread(QThread):
         convert_to_Qt_format = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
         p = convert_to_Qt_format.scaled(640, 480, aspectRatioMode=Qt.KeepAspectRatio)
         self.change_pixmap_signal.emit(p)
+
 
 class App(QWidget):
     def __init__(self):
@@ -130,6 +132,8 @@ class App(QWidget):
         self.start_button.clicked.disconnect()
         self.start_button.clicked.connect(self.start_timer)
         self.start_with_video_button.show()
+        self.image_label.hide()
+
     @pyqtSlot(QImage)
     def set_image(self, image):
         self.image_label.setPixmap(QPixmap.fromImage(image))
@@ -143,6 +147,7 @@ class App(QWidget):
             self.thread = VideoThread()
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.start()
+        self.image_label.show()
 
 
 if __name__ == '__main__':
