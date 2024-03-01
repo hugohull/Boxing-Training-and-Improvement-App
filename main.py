@@ -36,7 +36,8 @@ class App(QWidget):
     def __init__(self):
         super().__init__()
         self.current_round = 1
-        self.rounds = 12
+        self.rounds = 0
+        self.default_round = 12
         self.title = 'Boxing App'
         self.left = 10
         self.top = 10
@@ -52,25 +53,33 @@ class App(QWidget):
 
         # Layouts
         main_layout = QVBoxLayout()
+        main_layout.setSpacing(10)  # Sets the spacing between widgets in the layout to 10 pixels
+        main_layout.setContentsMargins(10, 10, 10, 10)  # Sets the margins of the layout (left, top, right, bottom)
+
         form_layout = QFormLayout()
         buttons_layout = QHBoxLayout()
 
-        # Widgets
+        # Labels
         self.image_label = QLabel(self)
+        self.timer_label = QLabel('00:00', self)
+        self.timer_label.setAlignment(Qt.AlignCenter)
+        self.timer_label.setStyleSheet("font-size: 40px; font-weight: bold;")
+        self.round_label = QLabel(f'Round {self.current_round:02}/{self.default_round}', self)
+        self.round_label.setAlignment(Qt.AlignCenter)
+        self.round_label.setStyleSheet("font-size: 34px; font-weight: bold;")
+
+        # Inputs
         self.round_input = QLineEdit(self)
         self.work_input = QLineEdit(self)
         self.rest_input = QLineEdit(self)
-        self.timer_label = QLabel('00:00', self)
-        self.timer_label.setAlignment(Qt.AlignCenter)
-        self.timer_label.setStyleSheet("font-size: 30px; font-weight: bold;")
+
+        # Buttons
         self.start_button = QPushButton('Start Timer', self)
         self.start_button.clicked.connect(self.start_timer)
-        self.thread = None
         self.start_with_video_button = QPushButton('Start Timer With Video', self)
         self.start_with_video_button.clicked.connect(self.start_timer_and_video)
-        self.round_label = QLabel(f'Round {self.current_round:02}/{self.rounds}', self)
-        self.round_label.setAlignment(Qt.AlignCenter)
-        self.round_label.setStyleSheet("font-size: 24px; font-weight: bold;")
+
+        self.thread = None
 
         # Validators
         self.round_validator = QIntValidator(1, 99, self)  # Assuming a reasonable range for rounds is 1 to 99
@@ -93,9 +102,14 @@ class App(QWidget):
         main_layout.addWidget(self.round_label)
 
         # Form layout for inputs
-        form_layout.addRow('Rounds:', self.round_input)
-        form_layout.addRow('Work Time (sec):', self.work_input)
-        form_layout.addRow('Rest Time (sec):', self.rest_input)
+        self.round_input_label = QLabel('Rounds:')
+        form_layout.addRow(self.round_input_label, self.round_input)
+
+        self.work_time_label = QLabel('Work Time (sec):')
+        form_layout.addRow(self.work_time_label, self.work_input)
+
+        self.rest_time_label = QLabel('Rest Time (sec):')
+        form_layout.addRow(self.rest_time_label, self.rest_input)
 
         # Buttons layout
         buttons_layout.addWidget(self.start_button)
@@ -132,6 +146,13 @@ class App(QWidget):
         self.play_sound()
         self.timer.start(1000)
         self.update_round_label()
+        # Hide inputs etc
+        self.round_input_label.hide()
+        self.round_input.hide()
+        self.work_time_label.hide()
+        self.work_input.hide()
+        self.rest_time_label.hide()
+        self.rest_input.hide()
 
     def start_rest(self):
         self.current_phase = 'rest'
@@ -152,6 +173,7 @@ class App(QWidget):
 
     def start_timer(self):
         self.rounds = int(self.round_input.text())
+        self.default_round = int(self.round_input.text())
         self.start_work()
         self.start_button.setText('Stop Timer')  # Change the button text to 'Stop Timer'
         self.start_button.clicked.disconnect()
@@ -161,16 +183,23 @@ class App(QWidget):
 
     def stop_timer(self):
         self.timer.stop()  # Stop the timer
-        self.timer_label.setText("Stopped")  # Change the label
+        self.timer_label.setText("Stopped.")  # Change the label
         self.start_button.setText('Start Timer')  # Change the button text to 'Start Timer'
         self.start_button.clicked.disconnect()
         self.start_button.clicked.connect(self.start_timer)
         self.start_with_video_button.show()
         self.image_label.hide()
+        # Show inputs and labels
+        self.round_input_label.show()
+        self.round_input.show()
+        self.work_time_label.show()
+        self.work_input.show()
+        self.rest_time_label.show()
+        self.rest_input.show()
 
     def update_round_label(self):
         # Update the text of round_label to reflect the current state
-        self.round_label.setText(f'Round {self.current_round:02}/{self.rounds}')
+        self.round_label.setText(f'Round {self.current_round:02}/{self.default_round}')
 
     @pyqtSlot(QImage)
     def set_image(self, image):
