@@ -138,6 +138,14 @@ class App(QWidget):
         self.work_input.setText("30")
         self.rest_input.setText("30")
 
+        # Container for buttons
+        button_container = QWidget()
+        buttons_layout = QHBoxLayout()
+        buttons_layout.addWidget(self.start_button)
+        buttons_layout.addWidget(self.start_with_video_button)
+        buttons_layout.setAlignment(Qt.AlignCenter)
+        button_container.setLayout(buttons_layout)
+
         # Add the timer label & round label
         main_layout.addWidget(self.timer_label)
         main_layout.addWidget(self.round_label)
@@ -159,7 +167,7 @@ class App(QWidget):
 
         # Adding widgets to main layout
         main_layout.addLayout(form_layout)
-        main_layout.addLayout(buttons_layout)
+        main_layout.addWidget(button_container)
         main_layout.addWidget(self.image_label)
 
         # Set main layout on the application window
