@@ -94,7 +94,7 @@ class App(QWidget):
         self.image_label = QLabel(self)
         self.timer_label = QLabel('03:00', self)
         self.timer_label.setAlignment(Qt.AlignCenter)
-        self.timer_label.setStyleSheet("font-size: 40px; font-weight: bold;")
+        self.timer_label.setStyleSheet("font-family: 'monaco', monospace; font-size: 40px; font-weight: bold;")
         self.round_label = QLabel(f'Round {self.current_round:02}/{self.default_round}', self)
         self.round_label.setAlignment(Qt.AlignCenter)
         self.round_label.setStyleSheet("font-size: 34px; font-weight: bold;")
@@ -220,6 +220,7 @@ class App(QWidget):
         self.rounds = 0
         self.current_round = 1
         self.start_button.setText('Start Timer')  # Change the button text to 'Start Timer'
+        self.timer_label.setText('00:00')
         self.round_label.setText('Round 01/12')
         self.start_button.clicked.disconnect()
         self.start_button.clicked.connect(self.start_timer)
