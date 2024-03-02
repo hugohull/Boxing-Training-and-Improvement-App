@@ -20,6 +20,11 @@ red_button_style = "QPushButton {background-color: #D32F2F; color: white; border
                    "QPushButton:disabled {background-color: #EF9A9A;}" \
                    "QPushButton:hover {background-color: #E57373;}"
 
+blue_button_style = "QPushButton {background-color: #2196F3; color: white; border-radius: 5px; padding: 6px; font-size: 14px;}" \
+                    "QPushButton:disabled {background-color: #BBDEFB;}" \
+                    "QPushButton:hover {background-color: #64B5F6;}"
+
+
 def show_error_message(message):
     error_dialog = QMessageBox()
     error_dialog.setIcon(QMessageBox.Critical)
@@ -58,6 +63,7 @@ class VideoThread(QThread):
 class App(QWidget):
     def __init__(self):
         super().__init__()
+        self.pause_button = None
         self.phase_label = None
         self.seconds_left = None
         self.current_phase = None
@@ -127,6 +133,10 @@ class App(QWidget):
         self.start_with_video_button = QPushButton('Start Timer With Video', self)
         self.start_with_video_button.clicked.connect(self.start_timer_and_video)
         self.start_with_video_button.setStyleSheet(green_button_style)
+        self.pause_button = QPushButton('Pause Timer', self)
+        self.pause_button.setStyleSheet(blue_button_style)
+        self.pause_button.clicked.connect(self.toggle_pause)
+        self.pause_button.hide()
 
         self.thread = None
 
@@ -143,6 +153,7 @@ class App(QWidget):
         buttons_layout = QHBoxLayout()
         buttons_layout.addWidget(self.start_button)
         buttons_layout.addWidget(self.start_with_video_button)
+        buttons_layout.addWidget(self.pause_button)
         buttons_layout.setAlignment(Qt.AlignCenter)
         button_container.setLayout(buttons_layout)
 
@@ -187,6 +198,7 @@ class App(QWidget):
         else:
             self.default_round = int(self.round_input.text())
             self.start_work()
+            self.pause_button.show()
             self.start_button.setText('Stop Timer')  # Change the button text to 'Stop Timer'
             self.start_button.setStyleSheet(red_button_style)
             self.start_button.clicked.disconnect()
@@ -238,6 +250,7 @@ class App(QWidget):
         self.current_round = 1
         self.start_button.setText('Start Timer')  # Change the button text to 'Start Timer'
         self.start_button.setStyleSheet(green_button_style)
+        self.pause_button.hide()
         self.timer_label.setText('00:00')
         self.round_label.setText('Round 01/12')
         self.start_button.clicked.disconnect()
@@ -265,6 +278,16 @@ class App(QWidget):
                 self.start_rest()
             else:
                 self.next_round()
+
+    def toggle_pause(self):
+        if self.timer.isActive():
+            self.timer.stop()
+            self.pause_button.setText('Resume Timer')
+            self.pause_button.setStyleSheet(green_button_style)  # Optional: Change style if you want to indicate resume
+        else:
+            self.timer.start(1000)
+            self.pause_button.setText('Pause Timer')
+            self.pause_button.setStyleSheet(blue_button_style)
 
     def update_round_label(self):
         # Update the text of round_label to reflect the current state
