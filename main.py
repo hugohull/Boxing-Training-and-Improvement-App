@@ -50,6 +50,7 @@ class VideoThread(QThread):
 class App(QWidget):
     def __init__(self):
         super().__init__()
+        self.phase_label = None
         self.seconds_left = None
         self.current_phase = None
         self.rest_time_label = None
@@ -96,6 +97,10 @@ class App(QWidget):
         self.round_label = QLabel(f'Round {self.current_round:02}/{self.default_round}', self)
         self.round_label.setAlignment(Qt.AlignCenter)
         self.round_label.setStyleSheet("font-size: 34px; font-weight: bold;")
+        # Initialize the phase label
+        self.phase_label = QLabel('', self)
+        self.phase_label.setAlignment(Qt.AlignCenter)
+        self.phase_label.setStyleSheet("font-size: 28px; font-weight: bold;")
 
         # Inputs
         self.round_input = QLineEdit(self)
@@ -120,12 +125,13 @@ class App(QWidget):
         # self.work_input.setPlaceholderText("Enter number of seconds (Work).")
         # self.rest_input.setPlaceholderText("Enter number of seconds (Rest).")
         self.round_input.setText("3")
-        self.work_input.setText("0")
+        self.work_input.setText("30")
         self.rest_input.setText("30")
 
         # Add the timer label & round label
         main_layout.addWidget(self.timer_label)
         main_layout.addWidget(self.round_label)
+        main_layout.addWidget(self.phase_label)
 
         # Form layout for inputs
         self.round_input_label = QLabel('Rounds:')
@@ -145,6 +151,7 @@ class App(QWidget):
         main_layout.addLayout(form_layout)
         main_layout.addLayout(buttons_layout)
         main_layout.addWidget(self.image_label)
+
 
         # Set main layout on the application window
         self.setLayout(main_layout)
@@ -171,6 +178,8 @@ class App(QWidget):
             
     def start_work(self):
         self.current_phase = 'work'
+        self.phase_label.setText('Work')  # Update the phase label text
+        self.current_phase = 'work'
         self.seconds_left = int(self.work_input.text())
         play_sound()
         self.timer.start(1000)
@@ -184,6 +193,8 @@ class App(QWidget):
         self.rest_input.hide()
 
     def start_rest(self):
+        self.current_phase = 'rest'
+        self.phase_label.setText('Rest')
         self.current_phase = 'rest'
         self.seconds_left = int(self.rest_input.text())
         play_sound()
@@ -205,6 +216,7 @@ class App(QWidget):
             self.seconds_left -= 1
             timer_str = f"{self.seconds_left // 60:02d}:{self.seconds_left % 60:02d}"
             self.timer_label.setText(timer_str)
+            self.timer_label.setAlignment(Qt.AlignCenter)
         else:
             self.timer.stop()
             if self.current_phase == 'work':
@@ -224,6 +236,7 @@ class App(QWidget):
         self.start_button.clicked.connect(self.start_timer)
         self.start_with_video_button.show()
         self.image_label.hide()
+        self.phase_label.hide()
         # Show inputs and labels
         self.round_input_label.show()
         self.round_input.show()
