@@ -71,8 +71,8 @@ class App(QWidget):
         self.title = 'Boxing App'
         self.left = 10
         self.top = 10
-        self.width = 800
-        self.height = 600
+        self.width = 960
+        self.height = 540
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
         self.initUI()
@@ -252,6 +252,7 @@ class App(QWidget):
     def start_timer_and_video(self):
         # Start the timer
         self.start_timer()
+        self.phase_label.show()
         # Check if the video thread does not exist or is not running
         if self.thread is None or not self.thread.isRunning():
             # Create and start the thread if it doesn't exist or is not running
