@@ -1,5 +1,6 @@
 import sys
 import threading
+import time
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, \
     QFormLayout, QMessageBox
 from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, Qt, QTimer
@@ -178,6 +179,7 @@ class App(QWidget):
             
     def start_work(self):
         self.current_phase = 'work'
+        self.phase_label.show()
         self.phase_label.setText('Work')  # Update the phase label text
         self.current_phase = 'work'
         self.seconds_left = int(self.work_input.text())
@@ -210,6 +212,27 @@ class App(QWidget):
             play_sound()
             self.timer_label.setText("Done!")
             self.update_round_label()
+            time.sleep(5)
+            self.timer_label.setText("00:00")
+            self.reset_timer()
+
+    def reset_timer(self):
+        self.rounds = 0
+        self.current_round = 1
+        self.start_button.setText('Start Timer')  # Change the button text to 'Start Timer'
+        self.round_label.setText('Round 01/12')
+        self.start_button.clicked.disconnect()
+        self.start_button.clicked.connect(self.start_timer)
+        self.start_with_video_button.show()
+        self.image_label.hide()
+        self.phase_label.hide()
+        # Show inputs and labels
+        self.round_input_label.show()
+        self.round_input.show()
+        self.work_time_label.show()
+        self.work_input.show()
+        self.rest_time_label.show()
+        self.rest_input.show()
             
     def update_timer(self):
         if self.seconds_left > 0:
@@ -230,20 +253,8 @@ class App(QWidget):
 
     def stop_timer(self):
         self.timer.stop()  # Stop the timer
-        self.timer_label.setText("Stopped.")  # Change the label
-        self.start_button.setText('Start Timer')  # Change the button text to 'Start Timer'
-        self.start_button.clicked.disconnect()
-        self.start_button.clicked.connect(self.start_timer)
-        self.start_with_video_button.show()
-        self.image_label.hide()
-        self.phase_label.hide()
-        # Show inputs and labels
-        self.round_input_label.show()
-        self.round_input.show()
-        self.work_time_label.show()
-        self.work_input.show()
-        self.rest_time_label.show()
-        self.rest_input.show()
+        self.phase_label.setText('Done!')
+        self.reset_timer()
 
     @pyqtSlot(QImage)
     def set_image(self, image):
