@@ -114,6 +114,7 @@ def run_punch_tracker(update_gui_func=None):
                 if x > frameWidth / 2:
                     if intersects_with_line(x, y, w, h, START, END):
                         if can_detect_again('blue'):
+                            # Add if statement to filter out body to head border
                             print("Blue object touching the line detected (Backhand)")
                     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
