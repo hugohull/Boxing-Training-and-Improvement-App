@@ -1,12 +1,13 @@
 import sys
 import threading
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFormLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, \
+    QFormLayout, QMessageBox
 from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, Qt, QTimer
 from PyQt5.QtGui import QPixmap, QImage, QIntValidator
 import cv2
 from pydub import AudioSegment
 from pydub.playback import play
-from punch_tracker import run_punch_tracker  # Make sure punch_tracker is adapted to PyQt
+from punch_tracker import run_punch_tracker
 
 ding = AudioSegment.from_mp3("Audio/Boxing Bell Sound.mp3")
 
@@ -61,7 +62,7 @@ class App(QWidget):
 
         # Labels
         self.image_label = QLabel(self)
-        self.timer_label = QLabel('00:00', self)
+        self.timer_label = QLabel('03:00', self)
         self.timer_label.setAlignment(Qt.AlignCenter)
         self.timer_label.setStyleSheet("font-size: 40px; font-weight: bold;")
         self.round_label = QLabel(f'Round {self.current_round:02}/{self.default_round}', self)
@@ -81,20 +82,12 @@ class App(QWidget):
 
         self.thread = None
 
-        # Validators
-        self.round_validator = QIntValidator(1, 99, self)  # Assuming a reasonable range for rounds is 1 to 99
-        self.time_validator = QIntValidator(1, 300, self)  # Assuming a reasonable range for time is 1 to 3600 seconds
-
-        self.round_input.setValidator(self.round_validator)
-        self.work_input.setValidator(self.time_validator)
-        self.rest_input.setValidator(self.time_validator)
-
         # Setting placeholders
         # self.round_input.setPlaceholderText("Enter number of rounds.")
         # self.work_input.setPlaceholderText("Enter number of seconds (Work).")
         # self.rest_input.setPlaceholderText("Enter number of seconds (Rest).")
         self.round_input.setText("3")
-        self.work_input.setText("30")
+        self.work_input.setText("0")
         self.rest_input.setText("30")
 
         # Add the timer label & round label
@@ -173,13 +166,38 @@ class App(QWidget):
 
     def start_timer(self):
         self.rounds = int(self.round_input.text())
-        self.default_round = int(self.round_input.text())
-        self.start_work()
-        self.start_button.setText('Stop Timer')  # Change the button text to 'Stop Timer'
-        self.start_button.clicked.disconnect()
-        self.start_button.clicked.connect(self.stop_timer)
-        self.start_with_video_button.hide()
-        self.update_round_label()
+        rest_seconds = int(self.rest_input.text())
+        work_seconds = int(self.work_input.text())
+        if self.rounds == 0:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText("Error: Number of rounds cannot be zero.")
+            error_dialog.setWindowTitle("Error")
+            error_dialog.setStandardButtons(QMessageBox.Ok)
+            error_dialog.exec_()
+
+        elif work_seconds == 0:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText("Error: Work seconds cannot be zero.")
+            error_dialog.setWindowTitle("Error")
+            error_dialog.setStandardButtons(QMessageBox.Ok)
+            error_dialog.exec_()
+        elif rest_seconds == 0:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText("Error: Rest seconds cannot be zero.")
+            error_dialog.setWindowTitle("Error")
+            error_dialog.setStandardButtons(QMessageBox.Ok)
+            error_dialog.exec_()
+        else:
+            self.default_round = int(self.round_input.text())
+            self.start_work()
+            self.start_button.setText('Stop Timer')  # Change the button text to 'Stop Timer'
+            self.start_button.clicked.disconnect()
+            self.start_button.clicked.connect(self.stop_timer)
+            self.start_with_video_button.hide()
+            self.update_round_label()
 
     def stop_timer(self):
         self.timer.stop()  # Stop the timer
