@@ -12,6 +12,13 @@ from punch_tracker import run_punch_tracker
 
 ding = AudioSegment.from_mp3("Audio/Boxing Bell Sound.mp3")
 
+green_button_style = "QPushButton {background-color: #4CAF50; color: white; border-radius: 5px; padding: 6px; font-size: 14px;}" \
+               "QPushButton:disabled {background-color: #A5D6A7;}" \
+               "QPushButton:hover {background-color: #81C784;}"
+
+red_button_style = "QPushButton {background-color: #D32F2F; color: white; border-radius: 5px; padding: 6px; font-size: 14px;}" \
+                   "QPushButton:disabled {background-color: #EF9A9A;}" \
+                   "QPushButton:hover {background-color: #E57373;}"
 
 def show_error_message(message):
     error_dialog = QMessageBox()
@@ -76,9 +83,9 @@ class App(QWidget):
         self.height = 540
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
-        self.initUI()
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
@@ -115,9 +122,11 @@ class App(QWidget):
 
         # Buttons
         self.start_button = QPushButton('Start Timer', self)
+        self.start_button.setStyleSheet(green_button_style)
         self.start_button.clicked.connect(self.start_timer)
         self.start_with_video_button = QPushButton('Start Timer With Video', self)
         self.start_with_video_button.clicked.connect(self.start_timer_and_video)
+        self.start_with_video_button.setStyleSheet(green_button_style)
 
         self.thread = None
 
@@ -153,7 +162,6 @@ class App(QWidget):
         main_layout.addLayout(buttons_layout)
         main_layout.addWidget(self.image_label)
 
-
         # Set main layout on the application window
         self.setLayout(main_layout)
         self.show()
@@ -172,11 +180,12 @@ class App(QWidget):
             self.default_round = int(self.round_input.text())
             self.start_work()
             self.start_button.setText('Stop Timer')  # Change the button text to 'Stop Timer'
+            self.start_button.setStyleSheet(red_button_style)
             self.start_button.clicked.disconnect()
             self.start_button.clicked.connect(self.stop_timer)
             self.start_with_video_button.hide()
             self.update_round_label()
-            
+
     def start_work(self):
         self.current_phase = 'work'
         self.phase_label.show()
@@ -220,6 +229,7 @@ class App(QWidget):
         self.rounds = 0
         self.current_round = 1
         self.start_button.setText('Start Timer')  # Change the button text to 'Start Timer'
+        self.start_button.setStyleSheet(green_button_style)
         self.timer_label.setText('00:00')
         self.round_label.setText('Round 01/12')
         self.start_button.clicked.disconnect()
@@ -234,7 +244,7 @@ class App(QWidget):
         self.work_input.show()
         self.rest_time_label.show()
         self.rest_input.show()
-            
+
     def update_timer(self):
         if self.seconds_left > 0:
             self.seconds_left -= 1
@@ -247,7 +257,7 @@ class App(QWidget):
                 self.start_rest()
             else:
                 self.next_round()
-                
+
     def update_round_label(self):
         # Update the text of round_label to reflect the current state
         self.round_label.setText(f'Round {self.current_round:02}/{self.default_round}')
