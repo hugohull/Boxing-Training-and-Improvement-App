@@ -126,16 +126,9 @@ def run_punch_tracker(update_gui_func=None):
         # Image flipped
         flip_img = cv2.flip(img, 1)
 
-        # displaying output on Screen
-        # cv2.imshow("Punch Tracker", flip_img)
-
         # If there's a function to update the GUI, call it with the current frame
         if update_gui_func is not None:
             update_gui_func(flip_img)
-
-        # # condition to break programs execution
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
 
     cap.release()
     cv2.destroyAllWindows()
