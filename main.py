@@ -107,7 +107,18 @@ class App(QWidget):
         self.image_label = QLabel(self)
         self.timer_label = QLabel('03:00', self)
         self.timer_label.setAlignment(Qt.AlignCenter)
-        self.timer_label.setStyleSheet("font-family: 'monaco', monospace; font-size: 40px; font-weight: bold;")
+        self.timer_label.setStyleSheet("""
+            font-family: 'monaco', monospace;
+            font-size: 40px;
+            font-weight: bold;
+            border-style: solid;
+            border-width: 2px;
+            border-color: red;
+            background-color: #FFC0CB;
+            border-radius: 5px;
+            padding: 8px;
+            margin; auto;
+        """)
         self.round_label = QLabel(f'Round {self.current_round:02}/{self.default_round}', self)
         self.round_label.setAlignment(Qt.AlignCenter)
         self.round_label.setStyleSheet("font-size: 34px; font-weight: bold;")
@@ -157,8 +168,14 @@ class App(QWidget):
         buttons_layout.setAlignment(Qt.AlignCenter)
         button_container.setLayout(buttons_layout)
 
+        label_wrapper = QWidget()
+        label_wrapper_layout = QVBoxLayout()  # Use QVBoxLayout for vertical centering
+        label_wrapper_layout.addWidget(self.timer_label)
+        label_wrapper_layout.setAlignment(self.timer_label, Qt.AlignCenter)  # Center the label in the wrapper
+        label_wrapper.setLayout(label_wrapper_layout)
+
         # Add the timer label & round label
-        main_layout.addWidget(self.timer_label)
+        main_layout.addWidget(label_wrapper)
         main_layout.addWidget(self.round_label)
         main_layout.addWidget(self.phase_label)
 
