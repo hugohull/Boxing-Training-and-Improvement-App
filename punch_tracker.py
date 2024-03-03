@@ -1,4 +1,7 @@
 # importing the modules
+import json
+from pprint import pprint
+
 import cv2
 import numpy as np
 import time
@@ -31,6 +34,33 @@ last_detection_time = {
 detection_cooldown = 0.5  # Adjust as needed
 
 
+def load_punch_history():
+    try:
+        with open('history/punch_history.json', 'r') as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Return a default dictionary if there's an error loading the file
+        return {
+            'Total Punches': 0,
+            'Total Left': 0,
+            'Total Right': 0,
+            'Total Head': 0,
+            'Total Body': 0,
+            'Left Head': 0,
+            'Left Body': 0,
+            'Right Head': 0,
+            'Right Body': 0,
+        }
+
+
+punch_history = load_punch_history()
+
+
+def save_punch_history(history):
+    with open('history/punch_history.json', 'w') as file:
+        json.dump(history, file)
+
+
 # Detection check
 def can_detect_again(color):
     current_time = time.time()
@@ -55,6 +85,7 @@ def intersects_with_line(x, y, w, h, line_start, line_end):
 
 
 def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True):
+    load_punch_history()
     # Main program
     while True:
         success, img = cap.read()
@@ -100,9 +131,14 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True):
             if area > 400 and track_punches_flag():
                 x, y, w, h = cv2.boundingRect(cnt)
                 if x > frameWidth / 2:
-                    body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
                     if intersects_with_line(x, y, w, h, START, END):
                         if can_detect_again('red'):
+                            body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
+                            punch_history['Total Punches'] += 1
+                            punch_history['Total Left'] += 1
+                            punch_history[f'Total {body_part}'] += 1
+                            punch_history[f'Left {body_part}'] += 1
+                            save_punch_history(punch_history)
                             print(f"Red object. Left {body_part} punch thrown.")
                     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
 
@@ -113,10 +149,14 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True):
             if area > 400 and track_punches_flag():
                 x, y, w, h = cv2.boundingRect(cnt)
                 if x > frameWidth / 2:
-                    body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
                     if intersects_with_line(x, y, w, h, START, END):
                         if can_detect_again('blue'):
-                            # Add if statement to filter out body to head border
+                            body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
+                            punch_history['Total Punches'] += 1
+                            punch_history['Total Right'] += 1
+                            punch_history[f'Total {body_part}'] += 1
+                            punch_history[f'Right {body_part}'] += 1
+                            save_punch_history(punch_history)
                             print(f"Blue object. Right {body_part} punch thrown.")
                     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
@@ -132,3 +172,7 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True):
 
     cap.release()
     cv2.destroyAllWindows()
+
+
+def print_punch_history():
+    pprint(load_punch_history(), sort_dicts=False)

@@ -8,7 +8,7 @@ from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor
 import cv2
 from pydub import AudioSegment
 from pydub.playback import play
-from punch_tracker import run_punch_tracker
+from punch_tracker import run_punch_tracker, print_punch_history
 
 ding = AudioSegment.from_mp3("Audio/Boxing Bell Sound.mp3")
 
@@ -159,6 +159,9 @@ class App(QWidget):
         self.pause_button.setStyleSheet(blue_button_style)
         self.pause_button.clicked.connect(self.toggle_pause)
         self.pause_button.hide()
+        history_button = QPushButton('History', self)
+        history_button.setStyleSheet(blue_button_style)
+        history_button.clicked.connect(print_punch_history)
 
         self.thread = None
 
@@ -335,7 +338,7 @@ class App(QWidget):
     def set_image(self, image):
         self.image_label.setPixmap(QPixmap.fromImage(image))
 
-    def start_timer_and_video(self):    # Start the timer
+    def start_timer_and_video(self):
         self.start_timer()
         self.phase_label.show()
         # Check if the video thread does not exist or is not running
