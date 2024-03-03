@@ -182,6 +182,12 @@ class App(QWidget):
         buttons_layout.setAlignment(Qt.AlignCenter)
         button_container.setLayout(buttons_layout)
 
+        history_button_layout = QHBoxLayout()
+        history_button_container = QWidget()
+        history_button_layout.addWidget(history_button)
+        history_button_layout.setAlignment(Qt.AlignCenter)  # Center the history button
+        history_button_container.setLayout(history_button_layout)
+
         label_wrapper = QWidget()
         label_wrapper_layout = QVBoxLayout()  # Use QVBoxLayout for vertical centering
         label_wrapper_layout.addWidget(self.timer_label)
@@ -210,6 +216,7 @@ class App(QWidget):
         # Adding widgets to main layout
         main_layout.addLayout(form_layout)
         main_layout.addWidget(button_container)
+        main_layout.addWidget(history_button_container)
         main_layout.addWidget(self.image_label)
 
         # Set main layout on the application window
