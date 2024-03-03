@@ -2,9 +2,9 @@ import sys
 import threading
 import time
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, \
-    QFormLayout, QMessageBox
+    QFormLayout, QMessageBox, QGraphicsDropShadowEffect
 from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, Qt, QTimer
-from PyQt5.QtGui import QPixmap, QImage, QIntValidator
+from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor
 import cv2
 from pydub import AudioSegment
 from pydub.playback import play
@@ -105,6 +105,12 @@ class App(QWidget):
 
         # Labels
         self.image_label = QLabel(self)
+        shadow_effect = QGraphicsDropShadowEffect(self.image_label)
+        shadow_effect.setBlurRadius(10)  # Shadow size
+        shadow_effect.setColor(QColor(0, 0, 0, 60))  # Shadow color and transparency
+        shadow_effect.setOffset(5, 5)  # Shadow offset
+        self.image_label.setGraphicsEffect(shadow_effect)
+
         self.timer_label = QLabel('03:00', self)
         self.timer_label.setAlignment(Qt.AlignCenter)
         self.timer_label.setStyleSheet("""
