@@ -13,8 +13,8 @@ from punch_tracker import run_punch_tracker
 ding = AudioSegment.from_mp3("Audio/Boxing Bell Sound.mp3")
 
 green_button_style = "QPushButton {background-color: #4CAF50; color: white; border-radius: 5px; padding: 6px; font-size: 14px;}" \
-               "QPushButton:disabled {background-color: #A5D6A7;}" \
-               "QPushButton:hover {background-color: #81C784;}"
+                     "QPushButton:disabled {background-color: #A5D6A7;}" \
+                     "QPushButton:hover {background-color: #81C784;}"
 
 red_button_style = "QPushButton {background-color: #D32F2F; color: white; border-radius: 5px; padding: 6px; font-size: 14px;}" \
                    "QPushButton:disabled {background-color: #EF9A9A;}" \
@@ -42,9 +42,13 @@ def play_sound():
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(QImage)
 
+    def __init__(self, parent=None):
+        super(VideoThread, self).__init__(parent)
+        self.track_punches_flag = lambda: True
+
     def run(self):
         self.running = True
-        run_punch_tracker(self.update_frame)
+        run_punch_tracker(self.update_frame, self.track_punches_flag)
 
     def stop(self):
         self.running = False
@@ -63,6 +67,7 @@ class VideoThread(QThread):
 class App(QWidget):
     def __init__(self):
         super().__init__()
+        self.track_punches = False
         self.pause_button = None
         self.phase_label = None
         self.seconds_left = None
@@ -230,6 +235,7 @@ class App(QWidget):
             self.update_round_label()
 
     def start_work(self):
+        self.track_punches = True
         self.current_phase = 'work'
         self.phase_label.show()
         self.phase_label.setText('Work')  # Update the phase label text
@@ -247,6 +253,7 @@ class App(QWidget):
         self.rest_input.hide()
 
     def start_rest(self):
+        self.track_punches = False
         self.current_phase = 'rest'
         self.phase_label.setText('Rest')
         self.current_phase = 'rest'
@@ -304,10 +311,12 @@ class App(QWidget):
 
     def toggle_pause(self):
         if self.timer.isActive():
+            self.track_punches = False
             self.timer.stop()
             self.pause_button.setText('Resume Timer')
             self.pause_button.setStyleSheet(green_button_style)  # Optional: Change style if you want to indicate resume
         else:
+            self.track_punches = True
             self.timer.start(1000)
             self.pause_button.setText('Pause Timer')
             self.pause_button.setStyleSheet(blue_button_style)
@@ -317,6 +326,7 @@ class App(QWidget):
         self.round_label.setText(f'Round {self.current_round:02}/{self.default_round}')
 
     def stop_timer(self):
+        self.track_punches = False
         self.timer.stop()  # Stop the timer
         self.phase_label.setText('Done!')
         self.reset_timer()
@@ -325,14 +335,14 @@ class App(QWidget):
     def set_image(self, image):
         self.image_label.setPixmap(QPixmap.fromImage(image))
 
-    def start_timer_and_video(self):
-        # Start the timer
+    def start_timer_and_video(self):    # Start the timer
         self.start_timer()
         self.phase_label.show()
         # Check if the video thread does not exist or is not running
         if self.thread is None or not self.thread.isRunning():
             # Create and start the thread if it doesn't exist or is not running
             self.thread = VideoThread()
+            self.thread.track_punches_flag = lambda: self.track_punches  # Set the flag before starting
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.start()
         self.image_label.show()

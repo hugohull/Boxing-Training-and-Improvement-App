@@ -54,7 +54,7 @@ def intersects_with_line(x, y, w, h, line_start, line_end):
     return False
 
 
-def run_punch_tracker(update_gui_func=None):
+def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True):
     # Main program
     while True:
         success, img = cap.read()
@@ -97,7 +97,7 @@ def run_punch_tracker(update_gui_func=None):
         # Red detection
         for cnt in contours_red:
             area = cv2.contourArea(cnt)
-            if area > 400:
+            if area > 400 and track_punches_flag():
                 x, y, w, h = cv2.boundingRect(cnt)
                 if x > frameWidth / 2:
                     body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
@@ -110,7 +110,7 @@ def run_punch_tracker(update_gui_func=None):
         contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours_blue:
             area = cv2.contourArea(cnt)
-            if area > 400:
+            if area > 400 and track_punches_flag():
                 x, y, w, h = cv2.boundingRect(cnt)
                 if x > frameWidth / 2:
                     body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
