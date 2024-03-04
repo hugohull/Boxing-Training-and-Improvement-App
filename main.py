@@ -155,11 +155,18 @@ class MainWindow(QMainWindow):
         self.show()
 
     def setupHomePage(self):
-        # Set up the home page layout and widgets
+        # Set up the history page layout and widgets
         layout = QVBoxLayout()
-        label = QLabel('Home Page')
-        layout.addWidget(label)
-        self.homePage.setLayout(layout)
+
+        # Create the history button
+        history_button = QPushButton('Show History', self)
+        history_button.setStyleSheet(blue_button_style)
+        history_button.clicked.connect(print_punch_history)
+
+        layout.addWidget(history_button)  # Add the history button to the history page layout
+        layout.setAlignment(Qt.AlignCenter)  # Center the content
+
+        self.historyPage.setLayout(layout)
 
     def setupHistoryPage(self):
         # Set up the history page layout and widgets
@@ -228,9 +235,6 @@ class MainWindow(QMainWindow):
         self.pause_button.setStyleSheet(blue_button_style)
         self.pause_button.clicked.connect(self.toggle_pause)
         self.pause_button.hide()
-        history_button = QPushButton('History', self)
-        history_button.setStyleSheet(blue_button_style)
-        history_button.clicked.connect(print_punch_history)
 
         self.thread = None
 
@@ -250,12 +254,6 @@ class MainWindow(QMainWindow):
         buttons_layout.addWidget(self.pause_button)
         buttons_layout.setAlignment(Qt.AlignCenter)
         button_container.setLayout(buttons_layout)
-
-        history_button_layout = QHBoxLayout()
-        history_button_container = QWidget()
-        history_button_layout.addWidget(history_button)
-        history_button_layout.setAlignment(Qt.AlignCenter)  # Center the history button
-        history_button_container.setLayout(history_button_layout)
 
         label_wrapper = QWidget()
         label_wrapper_layout = QVBoxLayout()  # Use QVBoxLayout for vertical centering
@@ -285,7 +283,6 @@ class MainWindow(QMainWindow):
         # Adding widgets to main layout
         main_layout.addLayout(form_layout)
         main_layout.addWidget(button_container)
-        main_layout.addWidget(history_button_container)
         main_layout.addWidget(self.image_label)
 
         # Set the layout to the timer page
@@ -303,6 +300,7 @@ class MainWindow(QMainWindow):
         # Change the current widget of the stacked widget to the home page
         self.stackedWidget.setCurrentWidget(self.homePage)
 
+    # Timer functions
     def start_timer(self):
         self.rounds = int(self.round_input.text())
         work_seconds = int(self.work_input.text())
@@ -447,4 +445,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
