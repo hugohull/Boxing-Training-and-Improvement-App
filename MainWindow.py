@@ -67,15 +67,15 @@ class MainWindow(QMainWindow):
         # Actions
         homeAct = QAction('Home', self)
         homeAct.setStatusTip('Return to Home')
-        homeAct.triggered.connect(self.goHome)
+        homeAct.triggered.connect(self.setHomePage)
 
         timerAct = QAction('Timer', self)
         timerAct.setStatusTip('Open timer')
-        timerAct.triggered.connect(self.startTimer)
+        timerAct.triggered.connect(self.setTimerPage)
 
         historyAct = QAction('History', self)
         historyAct.setStatusTip('View history')
-        historyAct.triggered.connect(self.showHistory)
+        historyAct.triggered.connect(self.setHistoryPage)
 
         exitAct = QAction('Exit', self)
         exitAct.setShortcut('Ctrl+Q')
@@ -233,16 +233,13 @@ class MainWindow(QMainWindow):
         # Set the layout to the timer page
         self.timerPage.setLayout(main_layout)
 
-    def showHistory(self):
-        # Change the current widget of the stacked widget to the history page
+    def setHistoryPage(self):
         self.stackedWidget.setCurrentWidget(self.historyPage)
 
-    def startTimer(self):
-        # Change the current widget of the stacked widget to the timer page
+    def setTimerPage(self):
         self.stackedWidget.setCurrentWidget(self.timerPage)
 
-    def goHome(self):
-        # Change the current widget of the stacked widget to the home page
+    def setHomePage(self):
         self.stackedWidget.setCurrentWidget(self.homePage)
 
     # Timer functions
