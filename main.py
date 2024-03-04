@@ -2,7 +2,7 @@ import sys
 import threading
 import time
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, \
-    QFormLayout, QMessageBox, QGraphicsDropShadowEffect
+    QFormLayout, QMessageBox, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp
 from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, Qt, QTimer
 from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor
 import cv2
@@ -64,7 +64,7 @@ class VideoThread(QThread):
         self.change_pixmap_signal.emit(p)
 
 
-class App(QWidget):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.track_punches = False
@@ -94,12 +94,81 @@ class App(QWidget):
         self.height = 540
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
-        self.init_ui()
+        self.initUI()
 
-    def init_ui(self):
+    def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
+        # Create the stacked widget
+        self.stackedWidget = QStackedWidget()
+        self.setCentralWidget(self.stackedWidget)
+
+        # Create individual pages
+        self.homePage = QWidget()
+        self.historyPage = QWidget()
+        self.timerPage = QWidget()
+
+        # Setup each page
+        self.setupHomePage()
+        self.setupHistoryPage()
+        self.setupTimerPage()
+
+        # Add pages to the stacked widget
+        self.stackedWidget.addWidget(self.homePage)
+        self.stackedWidget.addWidget(self.historyPage)
+        self.stackedWidget.addWidget(self.timerPage)
+
+        # Actions
+        homeAct = QAction('Home', self)
+        homeAct.setStatusTip('Return to Home')
+        homeAct.triggered.connect(self.goHome)
+
+        timerAct = QAction('Timer', self)
+        timerAct.setStatusTip('Open timer')
+        timerAct.triggered.connect(self.startTimer)
+
+        historyAct = QAction('History', self)
+        historyAct.setStatusTip('View history')
+        historyAct.triggered.connect(self.showHistory)
+
+        exitAct = QAction('Exit', self)
+        exitAct.setShortcut('Ctrl+Q')
+        exitAct.setStatusTip('Exit application')
+        exitAct.triggered.connect(qApp.quit)
+
+        # Menu bar
+        menubar = self.menuBar()
+        fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(homeAct)
+        fileMenu.addAction(timerAct)
+        fileMenu.addAction(historyAct)
+        fileMenu.addAction(exitAct)
+
+        # Toolbar
+        toolbar = self.addToolBar('MainToolbar')
+        toolbar.addAction(homeAct)
+        toolbar.addAction(timerAct)
+        toolbar.addAction(historyAct)
+        toolbar.addAction(exitAct)
+
+        self.show()
+
+    def setupHomePage(self):
+        # Set up the home page layout and widgets
+        layout = QVBoxLayout()
+        label = QLabel('Home Page')
+        layout.addWidget(label)
+        self.homePage.setLayout(layout)
+
+    def setupHistoryPage(self):
+        # Set up the history page layout and widgets
+        layout = QVBoxLayout()
+        label = QLabel('History Page')
+        layout.addWidget(label)
+        self.historyPage.setLayout(layout)
+
+    def setupTimerPage(self):
         # Layouts
         main_layout = QVBoxLayout()
         main_layout.setSpacing(10)  # Sets the spacing between widgets in the layout to 10 pixels
@@ -219,9 +288,20 @@ class App(QWidget):
         main_layout.addWidget(history_button_container)
         main_layout.addWidget(self.image_label)
 
-        # Set main layout on the application window
-        self.setLayout(main_layout)
-        self.show()
+        # Set the layout to the timer page
+        self.timerPage.setLayout(main_layout)
+
+    def showHistory(self):
+        # Change the current widget of the stacked widget to the history page
+        self.stackedWidget.setCurrentWidget(self.historyPage)
+
+    def startTimer(self):
+        # Change the current widget of the stacked widget to the timer page
+        self.stackedWidget.setCurrentWidget(self.timerPage)
+
+    def goHome(self):
+        # Change the current widget of the stacked widget to the home page
+        self.stackedWidget.setCurrentWidget(self.homePage)
 
     def start_timer(self):
         self.rounds = int(self.round_input.text())
@@ -359,7 +439,12 @@ class App(QWidget):
         self.image_label.setAlignment(Qt.AlignCenter)
 
 
-if __name__ == '__main__':
+def main():
     app = QApplication(sys.argv)
-    ex = App()
+    ex = MainWindow()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
+
