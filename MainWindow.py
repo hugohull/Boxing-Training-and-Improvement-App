@@ -55,8 +55,8 @@ class MainWindow(QMainWindow):
         self.timerPage = QWidget()
 
         # Setup each page
-        self.setupHomePage()
         self.setupHistoryPage()
+        self.setupHomePage()
         self.setupTimerPage()
 
         # Add pages to the stacked widget
@@ -99,7 +99,7 @@ class MainWindow(QMainWindow):
 
         self.show()
 
-    def setupHomePage(self):
+    def setupHistoryPage(self):
         # Set up the history page layout and widgets
         layout = QVBoxLayout()
 
@@ -113,12 +113,19 @@ class MainWindow(QMainWindow):
 
         self.historyPage.setLayout(layout)
 
-    def setupHistoryPage(self):
-        # Set up the history page layout and widgets
+    def setupHomePage(self):
+        # Set up the home page layout and widgets
         layout = QVBoxLayout()
-        label = QLabel('History Page')
-        layout.addWidget(label)
-        self.historyPage.setLayout(layout)
+
+        # Create image label
+        self.image_label = QLabel(self)
+        pixmap = QPixmap('Images/gloves.jpg')
+        pixmap = pixmap.scaled(450, 500, Qt.KeepAspectRatio)
+        self.image_label.setPixmap(pixmap)
+        self.image_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.image_label)
+
+        self.homePage.setLayout(layout)
 
     def setupTimerPage(self):
         # Layouts
