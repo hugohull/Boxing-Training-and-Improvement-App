@@ -3,10 +3,10 @@ from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout
     QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
 from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor
-from punch_tracker import print_punch_history
 from styles import *
 from utils import play_sound, show_error_message
 from VideoThread import VideoThread
+from HistoryManager import *
 
 
 class MainWindow(QMainWindow):
@@ -301,8 +301,12 @@ class MainWindow(QMainWindow):
 
     def next_round(self):
         self.rounds -= 1
+        punch_history = load_punch_history()
+        punch_history['Completed Rounds'] += 1
+        save_punch_history(punch_history)
         if self.rounds > 0:
             self.current_round += 1
+
             self.start_work()
         else:
             play_sound()

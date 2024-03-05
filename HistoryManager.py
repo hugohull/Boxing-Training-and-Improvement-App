@@ -18,6 +18,7 @@ def load_punch_history():
             'Left Body': 0,
             'Right Head': 0,
             'Right Body': 0,
+            'Completed Rounds': 0
         }
 
 
