@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
 from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor
 from styles import *
-from utils import play_sound, show_error_message
+from utils import play_sound, show_error_message, show_history_updated_message
 from VideoThread import VideoThread
 from HistoryManager import *
 
@@ -29,6 +29,16 @@ class MainWindow(QMainWindow):
         self.round_label = None
         self.timer_label = None
         self.image_label = None
+        self.total_punches_label = QLabel()
+        self.total_left_label = QLabel()
+        self.total_right_label = QLabel()
+        self.total_head_label = QLabel()
+        self.total_body_label = QLabel()
+        self.left_head_label = QLabel()
+        self.left_body_label = QLabel()
+        self.right_head_label = QLabel()
+        self.right_body_label = QLabel()
+        self.completed_rounds_label = QLabel()
         self.current_round = 1
         self.rounds = 0
         self.default_round = 12
@@ -100,18 +110,37 @@ class MainWindow(QMainWindow):
         self.show()
 
     def setupHistoryPage(self):
-        # Set up the history page layout and widgets
         layout = QVBoxLayout()
 
-        # Create the history button
-        history_button = QPushButton('Show History', self)
-        history_button.setStyleSheet(blue_button_style)
-        history_button.clicked.connect(print_punch_history)
+        self.update_history_labels()
 
-        layout.addWidget(history_button)  # Add the history button to the history page layout
-        layout.setAlignment(Qt.AlignCenter)  # Center the content
+        history_button = QPushButton('Refresh History', self)
+        history_button.setStyleSheet(blue_button_style)
+        history_button.clicked.connect(self.updateHistoryPage)
+
+        # Labels and buttons for the layout
+        layout.addWidget(self.total_punches_label)
+        layout.addWidget(self.total_left_label)
+        layout.addWidget(self.total_right_label)
+        layout.addWidget(self.total_head_label)
+        layout.addWidget(self.total_body_label)
+        layout.addWidget(self.left_head_label)
+        layout.addWidget(self.left_body_label)
+        layout.addWidget(self.right_head_label)
+        layout.addWidget(self.right_body_label)
+        layout.addWidget(self.completed_rounds_label)
+        layout.addWidget(history_button)
+        layout.setAlignment(Qt.AlignTop)
 
         self.historyPage.setLayout(layout)
+
+
+
+    def updateHistoryPage(self):
+
+        self.update_history_labels()
+
+        show_history_updated_message()
 
     def setupHomePage(self):
         # Set up the home page layout and widgets
@@ -388,3 +417,16 @@ class MainWindow(QMainWindow):
             self.thread.start()
         self.image_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
+
+    def update_history_labels(self):
+        punch_history = load_punch_history()
+        self.total_punches_label.setText(f'Total Punches: {punch_history["Total Punches"]}')
+        self.total_left_label.setText(f'Total Left: {punch_history["Total Left"]}')
+        self.total_right_label.setText(f'Total Right: {punch_history["Total Right"]}')
+        self.total_head_label.setText(f'Total Head: {punch_history["Total Head"]}')
+        self.total_body_label.setText(f'Total Body: {punch_history["Total Body"]}')
+        self.left_head_label.setText(f'Left Head: {punch_history["Left Head"]}')
+        self.left_body_label.setText(f'Left Body: {punch_history["Left Body"]}')
+        self.right_head_label.setText(f'Right Head: {punch_history["Right Head"]}')
+        self.right_body_label.setText(f'Right Body: {punch_history["Right Body"]}')
+        self.completed_rounds_label.setText(f'Completed Rounds: {punch_history["Completed Rounds"]}')
