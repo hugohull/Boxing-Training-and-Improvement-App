@@ -27,3 +27,11 @@ def show_history_updated_message():
     message_dialog.setWindowTitle("History Updated")
     message_dialog.setStandardButtons(QMessageBox.Ok)
     message_dialog.exec_()
+
+def show_session_complete_message():
+    message_dialog = QMessageBox()
+    message_dialog.setIcon(QMessageBox.Information)
+    message_dialog.setText("Your session is done!")
+    message_dialog.setWindowTitle("Session complete")
+    message_dialog.setStandardButtons(QMessageBox.Ok)
+    message_dialog.exec_()

@@ -1,10 +1,9 @@
-import time
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, \
     QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
 from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor
 from styles import *
-from utils import play_sound, show_error_message, show_history_updated_message
+from utils import play_sound, show_error_message, show_history_updated_message, show_session_complete_message
 from VideoThread import VideoThread
 from HistoryManager import *
 
@@ -133,8 +132,6 @@ class MainWindow(QMainWindow):
         layout.setAlignment(Qt.AlignTop)
 
         self.historyPage.setLayout(layout)
-
-
 
     def updateHistoryPage(self):
 
@@ -341,7 +338,7 @@ class MainWindow(QMainWindow):
             play_sound()
             self.timer_label.setText("Done!")
             self.update_round_label()
-            time.sleep(5)
+            show_session_complete_message()
             self.timer_label.setText("00:00")
             self.reset_timer()
 
