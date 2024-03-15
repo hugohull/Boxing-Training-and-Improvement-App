@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, \
     QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
-from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor
+from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont
 from styles import *
 from utils import play_sound, show_error_message, show_history_updated_message, show_session_complete_message
 from VideoThread import VideoThread
@@ -142,6 +142,16 @@ class MainWindow(QMainWindow):
     def setupHomePage(self):
         # Set up the home page layout and widgets
         layout = QVBoxLayout()
+
+        # Create welcome label
+        welcome_label = QLabel('Welcome to BoxingApp', self)
+        welcome_label.setAlignment(Qt.AlignCenter)
+        # Set font using QFont
+        font = QFont()
+        font.setPointSize(30)  # Set font size
+        font.setBold(True)  # Set font weight to bold
+        welcome_label.setFont(font)  # Apply the font to the welcome label
+        layout.addWidget(welcome_label)  # Add the welcome label to the layout
 
         # Create image label
         self.image_label = QLabel(self)
