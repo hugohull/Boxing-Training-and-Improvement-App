@@ -110,13 +110,7 @@ class MainWindow(QMainWindow):
 
     def setupHistoryPage(self):
         layout = QVBoxLayout()
-
         self.update_history_labels()
-
-        history_button = QPushButton('Refresh History', self)
-        history_button.setStyleSheet(blue_button_style)
-        history_button.clicked.connect(self.updateHistoryPage)
-
         # Labels and buttons for the layout
         layout.addWidget(self.total_punches_label)
         layout.addWidget(self.total_left_label)
@@ -128,16 +122,13 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.right_head_label)
         layout.addWidget(self.right_body_label)
         layout.addWidget(self.completed_rounds_label)
-        layout.addWidget(history_button)
+        # layout.addWidget(history_button)
         layout.setAlignment(Qt.AlignTop)
 
         self.historyPage.setLayout(layout)
 
     def updateHistoryPage(self):
-
         self.update_history_labels()
-
-        show_history_updated_message()
 
     def setupHomePage(self):
         # Set up the home page layout and widgets
@@ -277,6 +268,7 @@ class MainWindow(QMainWindow):
         self.timerPage.setLayout(main_layout)
 
     def setHistoryPage(self):
+        self.updateHistoryPage()
         self.stackedWidget.setCurrentWidget(self.historyPage)
 
     def setTimerPage(self):
