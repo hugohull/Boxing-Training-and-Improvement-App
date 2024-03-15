@@ -54,7 +54,7 @@ def intersects_with_line(x, y, w, h, line_start, line_end):
     return False
 
 
-def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True):
+def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None):
     load_punch_history()
     # Main program
     while True:
@@ -109,7 +109,8 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True):
                             punch_history[f'Total {body_part}'] += 1
                             punch_history[f'Left {body_part}'] += 1
                             save_punch_history(punch_history)
-                            print(f"Red object. Left {body_part} punch thrown.")
+                            if flash_screen_callback is not None:
+                                flash_screen_callback('red')
                     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
 
         # Find contours and draw them for blue
@@ -127,7 +128,8 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True):
                             punch_history[f'Total {body_part}'] += 1
                             punch_history[f'Right {body_part}'] += 1
                             save_punch_history(punch_history)
-                            print(f"Blue object. Right {body_part} punch thrown.")
+                            if flash_screen_callback is not None:
+                                flash_screen_callback('blue')
                     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
         # Add line

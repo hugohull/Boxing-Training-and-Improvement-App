@@ -48,7 +48,19 @@ class MainWindow(QMainWindow):
         self.height = 540
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
+        self.flash_timer = QTimer(self)
+        self.flash_timer.timeout.connect(self.end_flash)
         self.initUI()
+
+    def flash_color(self, color):
+        # Set the background color to red or blue depending on the detected object
+        color_hex = 'rgba(255, 0, 0, 200)' if color == 'red' else 'rgba(0, 0, 255, 200)'
+        self.image_label.setStyleSheet(f"border: 5px solid {color_hex};")
+        self.flash_timer.start(200)  # Start the timer for the flash duration
+
+    def end_flash(self):
+        self.image_label.setStyleSheet("border: 5px solid transparent;")
+        self.flash_timer.stop()  # Stop the timer
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -165,6 +177,7 @@ class MainWindow(QMainWindow):
 
         # Labels
         self.image_label = QLabel(self)
+        self.image_label.setStyleSheet("border: 5px solid transparent;")
         shadow_effect = QGraphicsDropShadowEffect(self.image_label)
         shadow_effect.setBlurRadius(10)  # Shadow size
         shadow_effect.setColor(QColor(0, 0, 0, 60))  # Shadow color and transparency
@@ -407,12 +420,11 @@ class MainWindow(QMainWindow):
     def start_timer_and_video(self):
         self.start_timer()
         self.phase_label.show()
-        # Check if the video thread does not exist or is not running
         if self.thread is None or not self.thread.isRunning():
-            # Create and start the thread if it doesn't exist or is not running
-            self.thread = VideoThread()
-            self.thread.track_punches_flag = lambda: self.track_punches  # Set the flag before starting
+            self.thread = VideoThread()  # No need to pass flash_screen_callback
+            self.thread.track_punches_flag = lambda: self.track_punches
             self.thread.change_pixmap_signal.connect(self.set_image)
+            self.thread.flash_needed.connect(self.flash_color)  # Connect the new signal
             self.thread.start()
         self.image_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
