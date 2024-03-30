@@ -11,6 +11,7 @@ from HistoryManager import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.start_training_mode_button = None
         self.track_punches = False
         self.pause_button = None
         self.phase_label = None
@@ -223,6 +224,9 @@ class MainWindow(QMainWindow):
         self.start_with_video_button = QPushButton('Start Timer With Video', self)
         self.start_with_video_button.clicked.connect(self.start_timer_and_video)
         self.start_with_video_button.setStyleSheet(green_button_style)
+        self.start_training_mode_button = QPushButton('Start Training Mode', self)
+        self.start_training_mode_button.setStyleSheet(green_button_style)
+        self.start_training_mode_button.clicked.connect(self.start_timer_and_video)
         self.pause_button = QPushButton('Pause Timer', self)
         self.pause_button.setStyleSheet(blue_button_style)
         self.pause_button.clicked.connect(self.toggle_pause)
@@ -243,6 +247,7 @@ class MainWindow(QMainWindow):
         buttons_layout = QHBoxLayout()
         buttons_layout.addWidget(self.start_button)
         buttons_layout.addWidget(self.start_with_video_button)
+        buttons_layout.addWidget(self.start_training_mode_button)
         buttons_layout.addWidget(self.pause_button)
         buttons_layout.setAlignment(Qt.AlignCenter)
         button_container.setLayout(buttons_layout)
@@ -310,6 +315,7 @@ class MainWindow(QMainWindow):
             self.start_button.clicked.disconnect()
             self.start_button.clicked.connect(self.stop_timer)
             self.start_with_video_button.hide()
+            self.start_training_mode_button.hide()
             self.update_round_label()
 
     def start_work(self):
