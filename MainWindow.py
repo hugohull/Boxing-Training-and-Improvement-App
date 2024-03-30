@@ -12,6 +12,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.start_training_mode_button = None
+        self.is_training_mode_active = False
         self.track_punches = False
         self.pause_button = None
         self.phase_label = None
@@ -226,7 +227,7 @@ class MainWindow(QMainWindow):
         self.start_with_video_button.setStyleSheet(green_button_style)
         self.start_training_mode_button = QPushButton('Start Training Mode', self)
         self.start_training_mode_button.setStyleSheet(green_button_style)
-        self.start_training_mode_button.clicked.connect(self.start_timer_and_video)
+        self.start_training_mode_button.clicked.connect(self.start_training_mode)
         self.pause_button = QPushButton('Pause Timer', self)
         self.pause_button.setStyleSheet(blue_button_style)
         self.pause_button.clicked.connect(self.toggle_pause)
@@ -374,6 +375,7 @@ class MainWindow(QMainWindow):
         self.start_button.clicked.disconnect()
         self.start_button.clicked.connect(self.start_timer)
         self.start_with_video_button.show()
+        self.start_training_mode_button.show()
         self.image_label.hide()
         self.phase_label.hide()
         # Show inputs and labels
@@ -432,6 +434,29 @@ class MainWindow(QMainWindow):
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.flash_needed.connect(self.flash_color)  # Connect the new signal
             self.thread.start()
+        self.image_label.show()
+        self.image_label.setAlignment(Qt.AlignCenter)
+
+    def start_training_mode(self):
+        self.is_training_mode_active = True
+        self.track_punches = True
+
+        self.start_timer()
+        self.phase_label.show()
+
+        self.expected_combination = ["Left Body", "Right Head"]
+        self.current_combination = []
+
+        print("Training Mode: Please perform the combination: Left Body, Right Head")
+
+        # Start video thread for punch detection and visual feedback
+        if self.thread is None or not self.thread.isRunning():
+            self.thread = VideoThread()
+            self.thread.track_punches_flag = lambda: self.is_training_mode_active  # Use the training mode flag
+            self.thread.change_pixmap_signal.connect(self.set_image)
+            self.thread.flash_needed.connect(self.flash_color)  # Visual feedback for punch detection
+            self.thread.start()
+
         self.image_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
 
