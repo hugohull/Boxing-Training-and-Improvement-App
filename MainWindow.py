@@ -2,6 +2,8 @@ from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout
     QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
 from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont
+
+from punch_tracker import run_training_mode
 from styles import *
 from utils import play_sound, show_error_message, show_history_updated_message, show_session_complete_message
 from VideoThread import VideoThread
@@ -438,24 +440,17 @@ class MainWindow(QMainWindow):
         self.image_label.setAlignment(Qt.AlignCenter)
 
     def start_training_mode(self):
+        # Ensure only one instance of VideoThread is running
+        if self.thread is not None and self.thread.isRunning():
+            self.thread.terminate()
+
         self.is_training_mode_active = True
         self.track_punches = True
 
-        self.start_timer()
-        self.phase_label.show()
-
-        self.expected_combination = ["Left Body", "Right Head"]
-        self.current_combination = []
-
-        print("Training Mode: Please perform the combination: Left Body, Right Head")
-
-        # Start video thread for punch detection and visual feedback
-        if self.thread is None or not self.thread.isRunning():
-            self.thread = VideoThread()
-            self.thread.track_punches_flag = lambda: self.is_training_mode_active  # Use the training mode flag
-            self.thread.change_pixmap_signal.connect(self.set_image)
-            self.thread.flash_needed.connect(self.flash_color)  # Visual feedback for punch detection
-            self.thread.start()
+        self.thread = VideoThread(mode='training')
+        self.thread.change_pixmap_signal.connect(self.set_image)
+        self.thread.flash_needed.connect(self.flash_color)
+        self.thread.start()
 
         self.image_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)

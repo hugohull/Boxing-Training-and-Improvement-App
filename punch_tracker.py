@@ -144,3 +144,91 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
 
     cap.release()
     cv2.destroyAllWindows()
+
+
+def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,):
+    load_punch_history()
+    current_combination = ['Right Body', 'Right Body', 'Left Body']
+    detected_punches = []
+
+    while True:
+        success, img = cap.read()
+        if not success:
+            break
+
+        # Convert to HSV color space
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+        # Using the same color ranges for red and blue as in run_punch_tracker
+        lower_red1 = np.array([170, 75, 50])
+        upper_red1 = np.array([180, 255, 255])
+        lower_blue = np.array([85, 50, 40])
+        upper_blue = np.array([145, 255, 255])
+
+        # Create masks for red and blue
+        mask_red = cv2.inRange(hsv, lower_red1, upper_red1)
+        mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
+
+        # Find contours and draw them for red
+        contours_red, _ = cv2.findContours(mask_red, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours_red:
+            area = cv2.contourArea(cnt)
+            if area > 400 and track_punches_flag():
+                x, y, w, h = cv2.boundingRect(cnt)
+                if x > frameWidth / 2:
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
+
+        # Find contours and draw them for blue
+        contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours_blue:
+            area = cv2.contourArea(cnt)
+            if area > 400 and track_punches_flag():
+                x, y, w, h = cv2.boundingRect(cnt)
+                if x > frameWidth / 2:
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
+
+        # Detect red punches
+        contours_red, _ = cv2.findContours(mask_red, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours_red:
+            area = cv2.contourArea(cnt)
+            if area > 400:
+                x, y, w, h = cv2.boundingRect(cnt)
+                if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START, END) and can_detect_again('red'):
+                    body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
+                    detected_punches.append(f'Left {body_part}')
+                    if flash_screen_callback is not None:
+                        flash_screen_callback('red')
+                    print(detected_punches)
+
+        # Detect blue punches
+        contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours_blue:
+            area = cv2.contourArea(cnt)
+            if area > 400:
+                x, y, w, h = cv2.boundingRect(cnt)
+                if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START, END) and can_detect_again('blue'):
+                    body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
+                    detected_punches.append(f'Right {body_part}')
+                    if flash_screen_callback is not None:
+                        flash_screen_callback('blue')
+                    print(detected_punches)
+
+        # Detect if the combination detected is = the set combination
+        if len(detected_punches) == len(current_combination):
+            if detected_punches == current_combination:
+                print("Correct combination thrown")
+                detected_punches = []
+            else:
+                print("Try Again")
+                detected_punches = []
+
+        # Add line
+        cv2.line(img, START, END, COLOUR, THICKNESS)
+
+        # Update GUI
+        if update_gui_func:
+            flip_img = cv2.flip(img, 1)
+            update_gui_func(flip_img)
+
+    cap.release()
+    cv2.destroyAllWindows()

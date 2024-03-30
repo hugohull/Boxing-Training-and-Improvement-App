@@ -2,25 +2,29 @@ import cv2
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtGui import QImage
 
-from punch_tracker import run_punch_tracker
+from punch_tracker import run_punch_tracker, run_training_mode
 
 
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(QImage)
-    flash_needed = pyqtSignal(str)  # Add this line
+    flash_needed = pyqtSignal(str)
+    # Define a signal for when a specific punch combination is detected
+    combination_detected_signal = pyqtSignal(bool)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, mode='regular'):
         super(VideoThread, self).__init__(parent)
+        self.mode = mode
         self.track_punches_flag = lambda: True
 
     def run(self):
-        self.running = True
-        # Modify the following line: no need for flash_screen_callback anymore
-        run_punch_tracker(self.update_frame, self.track_punches_flag, self.flash_needed.emit)
-
-    def stop(self):
-        self.running = False
-        self.wait()
+        if self.mode == 'training':
+            run_training_mode(
+                update_gui_func=self.update_frame,
+                track_punches_flag=self.track_punches_flag,
+                flash_screen_callback=self.flash_needed.emit,
+            )
+        else:
+            run_punch_tracker(self.update_frame, self.track_punches_flag, self.flash_needed.emit)
 
     def update_frame(self, frame):
         # Convert frame to format suitable for QtGui
