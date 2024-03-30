@@ -14,17 +14,22 @@ class VideoThread(QThread):
     def __init__(self, parent=None, mode='regular'):
         super(VideoThread, self).__init__(parent)
         self.mode = mode
+        self._is_running = True
         self.track_punches_flag = lambda: True
 
     def run(self):
-        if self.mode == 'training':
-            run_training_mode(
-                update_gui_func=self.update_frame,
-                track_punches_flag=self.track_punches_flag,
-                flash_screen_callback=self.flash_needed.emit,
-            )
-        else:
-            run_punch_tracker(self.update_frame, self.track_punches_flag, self.flash_needed.emit)
+        while self._is_running:
+            if self.mode == 'training':
+                run_training_mode(
+                    update_gui_func=self.update_frame,
+                    track_punches_flag=self.track_punches_flag,
+                    flash_screen_callback=self.flash_needed.emit,
+                )
+            else:
+                run_punch_tracker(self.update_frame, self.track_punches_flag, self.flash_needed.emit)
+
+    def stop(self):
+        self._is_running = False
 
     def update_frame(self, frame):
         # Convert frame to format suitable for QtGui

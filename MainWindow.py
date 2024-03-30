@@ -440,17 +440,17 @@ class MainWindow(QMainWindow):
         self.image_label.setAlignment(Qt.AlignCenter)
 
     def start_training_mode(self):
+        self.start_timer()
+        self.phase_label.show()
         # Ensure only one instance of VideoThread is running
-        if self.thread is not None and self.thread.isRunning():
-            self.thread.terminate()
+        if self.thread is None or not self.thread.isRunning():
+            self.is_training_mode_active = True
+            self.thread = VideoThread(mode='training')
 
-        self.is_training_mode_active = True
-        self.track_punches = True
-
-        self.thread = VideoThread(mode='training')
-        self.thread.change_pixmap_signal.connect(self.set_image)
-        self.thread.flash_needed.connect(self.flash_color)
-        self.thread.start()
+            self.thread.track_punches_flag = lambda: self.track_punches
+            self.thread.change_pixmap_signal.connect(self.set_image)
+            self.thread.flash_needed.connect(self.flash_color)
+            self.thread.start()
 
         self.image_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
