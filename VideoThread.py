@@ -24,11 +24,22 @@ class VideoThread(QThread):
                     update_gui_func=self.update_frame,
                     track_punches_flag=self.track_punches_flag,
                     flash_screen_callback=self.flash_needed.emit,
+                    should_stop=lambda: not self._is_running,
                 )
             else:
-                run_punch_tracker(self.update_frame, self.track_punches_flag, self.flash_needed.emit)
+                run_punch_tracker(
+                    self.update_frame,
+                    self.track_punches_flag,
+                    self.flash_needed.emit,
+                    should_stop=lambda: not self._is_running,
+                                  )
+
+            if not self._is_running:
+                print("self._is_running is False")
+                break
 
     def stop(self):
+        print("Thread should be stopepd.")
         self._is_running = False
 
     def update_frame(self, frame):

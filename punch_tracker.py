@@ -54,10 +54,10 @@ def intersects_with_line(x, y, w, h, line_start, line_end):
     return False
 
 
-def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None):
+def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, should_stop=lambda: False):
     load_punch_history()
     # Main program
-    while True:
+    while not should_stop():
         success, img = cap.read()
         if not success:
             break
@@ -109,6 +109,7 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
                             punch_history[f'Total {body_part}'] += 1
                             punch_history[f'Left {body_part}'] += 1
                             save_punch_history(punch_history)
+                            print("Red")
                             if flash_screen_callback is not None:
                                 flash_screen_callback('red')
                     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
@@ -128,6 +129,7 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
                             punch_history[f'Total {body_part}'] += 1
                             punch_history[f'Right {body_part}'] += 1
                             save_punch_history(punch_history)
+                            print("Blue")
                             if flash_screen_callback is not None:
                                 flash_screen_callback('blue')
                     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
@@ -146,12 +148,13 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
     cv2.destroyAllWindows()
 
 
-def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,):
+def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, should_stop=lambda: False):
     load_punch_history()
     current_combination = ['Right Body', 'Right Body', 'Left Body']
+    print(current_combination)
     detected_punches = []
 
-    while True:
+    while not should_stop():
         success, img = cap.read()
         if not success:
             break
