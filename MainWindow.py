@@ -419,7 +419,8 @@ class MainWindow(QMainWindow):
 
     def stop_timer(self):
         self.track_punches = False
-        # self.thread.stop()
+        if self.thread is not None:
+            self.thread.stop()
         self.timer.stop()  # Stop the timer
         self.phase_label.setText('Done!')
         self.reset_timer()
