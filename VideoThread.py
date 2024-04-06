@@ -16,11 +16,22 @@ class VideoThread(QThread):
         self.mode = mode
         self._is_running = True
         self.track_punches_flag = lambda: True
+        self.cap = None
 
     def run(self):
+
+        # Initialize the video capture here
+        self.cap = cv2.VideoCapture(0)
+        frameWidth = 960
+        frameHeight = 540
+        self.cap.set(3, frameWidth)  # Set width
+        self.cap.set(4, frameHeight)  # Set height
+        self.cap.set(10, 150)  # Set brightness, if needed
+
         while self._is_running:
             if self.mode == 'training':
                 run_training_mode(
+                    self.cap,
                     update_gui_func=self.update_frame,
                     track_punches_flag=self.track_punches_flag,
                     flash_screen_callback=self.flash_needed.emit,
@@ -28,6 +39,7 @@ class VideoThread(QThread):
                 )
             else:
                 run_punch_tracker(
+                    self.cap,
                     self.update_frame,
                     self.track_punches_flag,
                     self.flash_needed.emit,
@@ -40,6 +52,7 @@ class VideoThread(QThread):
 
     def stop(self):
         print("Thread should be stopepd.")
+        self.cap.release()
         self._is_running = False
 
     def update_frame(self, frame):
