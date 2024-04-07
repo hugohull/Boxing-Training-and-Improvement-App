@@ -99,7 +99,7 @@ def run_punch_tracker(cap, update_gui_func=None, track_punches_flag=lambda: True
         # Red detection
         for cnt in contours_red:
             area = cv2.contourArea(cnt)
-            if area > 400 and track_punches_flag():
+            if area > 400 and track_punches_flag:
                 x, y, w, h = cv2.boundingRect(cnt)
                 if x > frameWidth / 2:
                     if intersects_with_line(x, y, w, h, START, END):
@@ -119,7 +119,7 @@ def run_punch_tracker(cap, update_gui_func=None, track_punches_flag=lambda: True
         contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours_blue:
             area = cv2.contourArea(cnt)
-            if area > 400 and track_punches_flag():
+            if area > 400 and track_punches_flag:
                 x, y, w, h = cv2.boundingRect(cnt)
                 if x > frameWidth / 2:
                     if intersects_with_line(x, y, w, h, START, END):

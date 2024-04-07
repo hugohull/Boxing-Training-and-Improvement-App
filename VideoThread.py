@@ -16,6 +16,8 @@ class VideoThread(QThread):
         self.mode = mode
         self._is_running = True
         self.track_punches_flag = lambda: True
+        self.tracker_mode_active = False  # Set the initial state to False
+        self.training_mode_active = False
         self.cap = None
 
     def run(self):
@@ -34,7 +36,7 @@ class VideoThread(QThread):
                 run_training_mode(
                     self.cap,
                     update_gui_func=self.update_frame,
-                    track_punches_flag=self.track_punches_flag,
+                    track_punches_flag=lambda: self.training_mode_active,
                     flash_screen_callback=self.flash_needed.emit,
                     should_stop=lambda: not self._is_running,
                 )
@@ -42,7 +44,7 @@ class VideoThread(QThread):
                 run_punch_tracker(
                     self.cap,
                     self.update_frame,
-                    self.track_punches_flag,
+                    self.tracker_mode_active,
                     self.flash_needed.emit,
                     should_stop=lambda: not self._is_running,
                                   )

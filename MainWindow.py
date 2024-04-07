@@ -15,7 +15,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.start_training_mode_button = None
         self.is_training_mode_active = False
-        self.track_punches = False
+        self.is_tracker_mode_active = False
+        self.is_training_mode_active = False
         self.pause_button = None
         self.phase_label = None
         self.seconds_left = None
@@ -418,7 +419,7 @@ class MainWindow(QMainWindow):
         self.round_label.setText(f'Round {self.current_round:02}/{self.default_round}')
 
     def stop_timer(self):
-        self.track_punches = False
+        self.toggle_modes(tracker_mode=False, training_mode=False)
         if self.thread is not None:
             # self.thread.stop()
             self.image_label.hide()
@@ -432,12 +433,19 @@ class MainWindow(QMainWindow):
         if self.thread is not None:
             self.image_label.setPixmap(QPixmap.fromImage(image))
 
+    def toggle_modes(self, tracker_mode, training_mode):
+        if self.thread:
+            self.thread.tracker_mode_active = tracker_mode
+            self.thread.training_mode_active = training_mode
+        self.is_tracker_mode_active = tracker_mode
+        self.is_training_mode_active = training_mode
+
     def start_timer_and_video(self):
         self.start_timer()
         self.phase_label.show()
         if self.thread is None or not self.thread.isRunning():
             self.thread = VideoThread()  # No need to pass flash_screen_callback
-            self.thread.track_punches_flag = lambda: self.track_punches
+            self.toggle_modes(tracker_mode=True, training_mode=False)
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.flash_needed.connect(self.flash_color)  # Connect the new signal
             self.thread.start()
@@ -451,12 +459,10 @@ class MainWindow(QMainWindow):
         if self.thread is None or not self.thread.isRunning():
             self.is_training_mode_active = True
             self.thread = VideoThread(mode='training')
-
-            self.thread.track_punches_flag = lambda: self.track_punches
+            self.toggle_modes(tracker_mode=False, training_mode=True)
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.flash_needed.connect(self.flash_color)
             self.thread.start()
-
         self.image_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
 
