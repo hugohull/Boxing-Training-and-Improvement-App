@@ -378,7 +378,7 @@ class MainWindow(QMainWindow):
         self.start_button.clicked.connect(self.start_timer)
         self.start_with_video_button.show()
         self.start_training_mode_button.show()
-        self.image_label.hide()
+        # self.image_label.hide()
         self.phase_label.hide()
         # Show inputs and labels
         self.round_input_label.show()
@@ -420,14 +420,17 @@ class MainWindow(QMainWindow):
     def stop_timer(self):
         self.track_punches = False
         if self.thread is not None:
-            self.thread.stop()
+            # self.thread.stop()
+            self.image_label.hide()
+            self.thread = None
         self.timer.stop()  # Stop the timer
         self.phase_label.setText('Done!')
         self.reset_timer()
 
     @pyqtSlot(QImage)
     def set_image(self, image):
-        self.image_label.setPixmap(QPixmap.fromImage(image))
+        if self.thread is not None:
+            self.image_label.setPixmap(QPixmap.fromImage(image))
 
     def start_timer_and_video(self):
         self.start_timer()

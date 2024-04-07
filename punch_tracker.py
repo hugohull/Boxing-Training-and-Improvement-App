@@ -195,7 +195,7 @@ def run_training_mode(cap, update_gui_func=None, track_punches_flag=lambda: True
         contours_red, _ = cv2.findContours(mask_red, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours_red:
             area = cv2.contourArea(cnt)
-            if area > 400:
+            if area > 400 and track_punches_flag():
                 x, y, w, h = cv2.boundingRect(cnt)
                 if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START, END) and can_detect_again('red'):
                     body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
@@ -208,7 +208,7 @@ def run_training_mode(cap, update_gui_func=None, track_punches_flag=lambda: True
         contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours_blue:
             area = cv2.contourArea(cnt)
-            if area > 400:
+            if area > 400 and track_punches_flag():
                 x, y, w, h = cv2.boundingRect(cnt)
                 if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START, END) and can_detect_again('blue'):
                     body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
@@ -218,13 +218,14 @@ def run_training_mode(cap, update_gui_func=None, track_punches_flag=lambda: True
                     print(detected_punches)
 
         # Detect if the combination detected is = the set combination
-        if len(detected_punches) == len(current_combination):
-            if detected_punches == current_combination:
-                print("Correct combination thrown")
-                detected_punches = []
-            else:
-                print("Try Again")
-                detected_punches = []
+        if track_punches_flag():
+            if len(detected_punches) == len(current_combination):
+                if detected_punches == current_combination:
+                    print("Correct combination thrown")
+                    detected_punches = []
+                else:
+                    print("Try Again")
+                    detected_punches = []
 
         # Add line
         cv2.line(img, START, END, COLOUR, THICKNESS)

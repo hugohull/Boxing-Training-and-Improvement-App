@@ -21,6 +21,7 @@ class VideoThread(QThread):
     def run(self):
 
         # Initialize the video capture here
+        self._is_running = True
         self.cap = cv2.VideoCapture(0)
         frameWidth = 960
         frameHeight = 540
@@ -53,7 +54,9 @@ class VideoThread(QThread):
     def stop(self):
         print("Thread should be stopepd.")
         self.cap.release()
+        print("cap released")
         self._is_running = False
+        print("Set to false")
 
     def update_frame(self, frame):
         # Convert frame to format suitable for QtGui
