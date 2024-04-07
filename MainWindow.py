@@ -13,6 +13,7 @@ from HistoryManager import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.last_used_mode = None
         self.start_training_mode_button = None
         self.is_training_mode_active = False
         self.is_tracker_mode_active = False
@@ -322,7 +323,10 @@ class MainWindow(QMainWindow):
             self.update_round_label()
 
     def start_work(self):
-        self.track_punches = True
+        if self.last_used_mode == "Tracking":
+            self.toggle_modes(tracker_mode=True, training_mode=False)
+        elif self.last_used_mode == "Training":
+            self.toggle_modes(tracker_mode=False, training_mode=True)
         self.current_phase = 'work'
         self.phase_label.show()
         self.phase_label.setText('Work')  # Update the phase label text
@@ -340,7 +344,7 @@ class MainWindow(QMainWindow):
         self.rest_input.hide()
 
     def start_rest(self):
-        self.track_punches = False
+        self.toggle_modes(tracker_mode=False, training_mode=False)
         self.current_phase = 'rest'
         self.phase_label.setText('Rest')
         self.current_phase = 'rest'
@@ -404,6 +408,10 @@ class MainWindow(QMainWindow):
     def toggle_pause(self):
         if self.timer.isActive():
             self.track_punches = False
+            if self.last_used_mode == "Tracking":
+                self.toggle_modes(tracker_mode=True, training_mode=False)
+            elif self.last_used_mode == "Training":
+                self.toggle_modes(tracker_mode=False, training_mode=True)
             self.timer.stop()
             self.pause_button.setText('Resume Timer')
             self.pause_button.setStyleSheet(green_button_style)  # Optional: Change style if you want to indicate resume
@@ -440,6 +448,7 @@ class MainWindow(QMainWindow):
         self.is_training_mode_active = training_mode
 
     def start_timer_and_video(self):
+        self.last_used_mode = "Tracking"
         self.start_timer()
         self.phase_label.show()
         if self.thread is None or not self.thread.isRunning():
@@ -452,6 +461,7 @@ class MainWindow(QMainWindow):
         self.image_label.setAlignment(Qt.AlignCenter)
 
     def start_training_mode(self):
+        self.last_used_mode = "Training"
         self.start_timer()
         self.phase_label.show()
         # Ensure only one instance of VideoThread is running

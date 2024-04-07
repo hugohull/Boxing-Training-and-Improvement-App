@@ -1,3 +1,5 @@
+import random
+
 import cv2
 import numpy as np
 import time
@@ -148,7 +150,13 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
 
 def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, should_stop=lambda: False):
     load_punch_history()
-    current_combination = ['Right Body', 'Right Body', 'Left Body']
+
+    def generate_random_combination():
+        punches = ['Left Head', 'Left Body', 'Right Head', 'Right Body']
+        num_punches = random.randint(1, 4)  # Generate a random number of punches (1 to 4)
+        return [random.choice(punches) for _ in range(num_punches)]
+
+    current_combination = generate_random_combination()
     print(current_combination)
     detected_punches = []
 
@@ -219,6 +227,8 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
             if len(detected_punches) == len(current_combination):
                 if detected_punches == current_combination:
                     print("Correct combination thrown")
+                    current_combination = generate_random_combination()  # Generate a new combination for the next round
+                    print(current_combination)  # Print the new combination
                     detected_punches = []
                 else:
                     print("Try Again")
