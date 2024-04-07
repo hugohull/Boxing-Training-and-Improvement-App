@@ -16,7 +16,6 @@ class MainWindow(QMainWindow):
         self.start_training_mode_button = None
         self.is_training_mode_active = False
         self.is_tracker_mode_active = False
-        self.is_training_mode_active = False
         self.pause_button = None
         self.phase_label = None
         self.seconds_left = None

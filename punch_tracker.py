@@ -15,12 +15,12 @@ THICKNESS = 9
 
 
 # # Webcam video settings
-# cap = cv2.VideoCapture(0)
-# cap.set(3, frameWidth)
-# cap.set(4, frameHeight)
-#
-# # Webcam brightness
-# cap.set(10, 150)
+cap = cv2.VideoCapture(0)
+cap.set(3, frameWidth)
+cap.set(4, frameHeight)
+
+# Webcam brightness
+cap.set(10, 150)
 
 # Last detection of colour
 last_detection_time = {
@@ -55,7 +55,7 @@ def intersects_with_line(x, y, w, h, line_start, line_end):
     return False
 
 
-def run_punch_tracker(cap, update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, should_stop=lambda: False):
+def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, should_stop=lambda: False):
     load_punch_history()
     # Main program
     while not should_stop():
@@ -99,7 +99,7 @@ def run_punch_tracker(cap, update_gui_func=None, track_punches_flag=lambda: True
         # Red detection
         for cnt in contours_red:
             area = cv2.contourArea(cnt)
-            if area > 400 and track_punches_flag:
+            if area > 400 and track_punches_flag():
                 x, y, w, h = cv2.boundingRect(cnt)
                 if x > frameWidth / 2:
                     if intersects_with_line(x, y, w, h, START, END):
@@ -119,7 +119,7 @@ def run_punch_tracker(cap, update_gui_func=None, track_punches_flag=lambda: True
         contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours_blue:
             area = cv2.contourArea(cnt)
-            if area > 400 and track_punches_flag:
+            if area > 400 and track_punches_flag():
                 x, y, w, h = cv2.boundingRect(cnt)
                 if x > frameWidth / 2:
                     if intersects_with_line(x, y, w, h, START, END):
@@ -145,11 +145,8 @@ def run_punch_tracker(cap, update_gui_func=None, track_punches_flag=lambda: True
         if update_gui_func is not None:
             update_gui_func(flip_img)
 
-    # cap.release()
-    # cv2.destroyAllWindows()
 
-
-def run_training_mode(cap, update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, should_stop=lambda: False):
+def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, should_stop=lambda: False):
     load_punch_history()
     current_combination = ['Right Body', 'Right Body', 'Left Body']
     print(current_combination)
@@ -234,8 +231,3 @@ def run_training_mode(cap, update_gui_func=None, track_punches_flag=lambda: True
         if update_gui_func:
             flip_img = cv2.flip(img, 1)
             update_gui_func(flip_img)
-
-    # cap.release()
-    # cv2.destroyAllWindows()
-    # print(cap)
-    # print(type(cap))

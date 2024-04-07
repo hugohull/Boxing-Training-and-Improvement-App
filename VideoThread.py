@@ -24,17 +24,10 @@ class VideoThread(QThread):
 
         # Initialize the video capture here
         self._is_running = True
-        self.cap = cv2.VideoCapture(0)
-        frameWidth = 960
-        frameHeight = 540
-        self.cap.set(3, frameWidth)  # Set width
-        self.cap.set(4, frameHeight)  # Set height
-        self.cap.set(10, 150)  # Set brightness, if needed
 
         while self._is_running:
             if self.mode == 'training':
                 run_training_mode(
-                    self.cap,
                     update_gui_func=self.update_frame,
                     track_punches_flag=lambda: self.training_mode_active,
                     flash_screen_callback=self.flash_needed.emit,
@@ -42,10 +35,9 @@ class VideoThread(QThread):
                 )
             else:
                 run_punch_tracker(
-                    self.cap,
-                    self.update_frame,
-                    self.tracker_mode_active,
-                    self.flash_needed.emit,
+                    update_gui_func=self.update_frame,
+                    track_punches_flag=lambda: self.tracker_mode_active,
+                    flash_screen_callback=self.flash_needed.emit,
                     should_stop=lambda: not self._is_running,
                                   )
 
