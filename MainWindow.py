@@ -408,15 +408,15 @@ class MainWindow(QMainWindow):
     def toggle_pause(self):
         if self.timer.isActive():
             self.track_punches = False
-            if self.last_used_mode == "Tracking":
-                self.toggle_modes(tracker_mode=True, training_mode=False)
-            elif self.last_used_mode == "Training":
-                self.toggle_modes(tracker_mode=False, training_mode=True)
+            self.toggle_modes(tracker_mode=False, training_mode=False)
             self.timer.stop()
             self.pause_button.setText('Resume Timer')
             self.pause_button.setStyleSheet(green_button_style)  # Optional: Change style if you want to indicate resume
         else:
-            self.track_punches = True
+            if self.last_used_mode == "Tracking":
+                self.toggle_modes(tracker_mode=True, training_mode=False)
+            elif self.last_used_mode == "Training":
+                self.toggle_modes(tracker_mode=False, training_mode=True)
             self.timer.start(1000)
             self.pause_button.setText('Pause Timer')
             self.pause_button.setStyleSheet(blue_button_style)
