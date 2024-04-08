@@ -10,6 +10,7 @@ from pygame import mixer
 from gtts import gTTS
 
 from HistoryManager import *
+from utils import play_correct, play_incorrect
 
 # set screen settings
 frameWidth = 960
@@ -20,7 +21,6 @@ START = (1000, 0)
 END = (1000, 800)
 COLOUR = (0, 255, 0)
 THICKNESS = 9
-
 
 # # Webcam video settings
 cap = cv2.VideoCapture(0)
@@ -63,7 +63,8 @@ def intersects_with_line(x, y, w, h, line_start, line_end):
     return False
 
 
-def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, should_stop=lambda: False):
+def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,
+                      should_stop=lambda: False):
     load_punch_history()
     # Main program
     while not should_stop():
@@ -153,7 +154,9 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
         if update_gui_func is not None:
             update_gui_func(flip_img)
 
+
 mixer.init()
+
 
 # Function to speak the current combination using gTTS
 def speak_combination(combination):
@@ -172,7 +175,8 @@ def speak_combination(combination):
     threading.Thread(target=tts_thread).start()
 
 
-def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, should_stop=lambda: False):
+def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,
+                      should_stop=lambda: False):
     load_punch_history()
 
     def generate_random_combination():
@@ -234,7 +238,7 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     detected_punches.append(f'Left {body_part}')
                     if flash_screen_callback is not None:
                         flash_screen_callback('red')
-                    print(detected_punches)
+                    # print(detected_punches)
 
         # Detect blue punches
         contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -247,19 +251,21 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     detected_punches.append(f'Right {body_part}')
                     if flash_screen_callback is not None:
                         flash_screen_callback('blue')
-                    print(detected_punches)
+                    # print(detected_punches)
 
         # Detect if the combination detected is = the set combination
         if track_punches_flag():
             if len(detected_punches) == len(current_combination):
                 if detected_punches == current_combination:
                     print("Correct combination thrown")
+                    play_correct()
                     current_combination = generate_random_combination()  # Generate a new combination for the next round
                     print(current_combination)  # Print the new combination
                     speak_combination(current_combination)
                     detected_punches = []
                 else:
                     print("Try Again")
+                    play_incorrect()
                     detected_punches = []
 
         # Add line

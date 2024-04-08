@@ -5,11 +5,20 @@ from pydub import AudioSegment
 from pydub.playback import play
 
 ding = AudioSegment.from_mp3("Audio/Boxing Bell Sound.mp3")
+correct = AudioSegment.from_mp3("Audio/Correct.mp3")
+incorrect = AudioSegment.from_mp3("Audio/Incorrect.mp3")
 
 
-def play_sound():
+def play_ding():
     # Using a thread to avoid blocking the GUI while playing sound
     threading.Thread(target=lambda: play(ding), daemon=True).start()
+
+def play_correct():
+    # Using a thread to avoid blocking the GUI while playing sound
+    threading.Thread(target=lambda: play(correct), daemon=True).start()
+
+def play_incorrect():
+    threading.Thread(target=lambda: play(incorrect), daemon=True).start()
 
 
 def show_error_message(message):

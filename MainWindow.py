@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont
 
 from punch_tracker import run_training_mode
 from styles import *
-from utils import play_sound, show_error_message, show_history_updated_message, show_session_complete_message
+from utils import play_ding, show_error_message, show_history_updated_message, show_session_complete_message
 from VideoThread import VideoThread
 from HistoryManager import *
 
@@ -332,7 +332,7 @@ class MainWindow(QMainWindow):
         self.phase_label.setText('Work')  # Update the phase label text
         self.current_phase = 'work'
         self.seconds_left = int(self.work_input.text())
-        play_sound()
+        play_ding()
         self.timer.start(1000)
         self.update_round_label()
         # Hide inputs etc
@@ -349,7 +349,7 @@ class MainWindow(QMainWindow):
         self.phase_label.setText('Rest')
         self.current_phase = 'rest'
         self.seconds_left = int(self.rest_input.text())
-        play_sound()
+        play_ding()
         self.timer.start(1000)
         self.update_round_label()
 
@@ -363,7 +363,7 @@ class MainWindow(QMainWindow):
 
             self.start_work()
         else:
-            play_sound()
+            play_ding()
             self.timer_label.setText("Done!")
             self.update_round_label()
             show_session_complete_message()
