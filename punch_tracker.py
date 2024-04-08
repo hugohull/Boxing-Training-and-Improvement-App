@@ -256,6 +256,7 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     print("Correct combination thrown")
                     current_combination = generate_random_combination()  # Generate a new combination for the next round
                     print(current_combination)  # Print the new combination
+                    speak_combination(current_combination)
                     detected_punches = []
                 else:
                     print("Try Again")
