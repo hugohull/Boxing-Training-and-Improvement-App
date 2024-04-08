@@ -369,6 +369,7 @@ class MainWindow(QMainWindow):
             self.timer_label.setText("Done!")
             self.update_round_label()
             self.again = True
+            self.toggle_modes(tracker_mode=False, training_mode=False)
             show_session_complete_message()
             self.timer_label.setText("00:00")
             self.image_label.hide()
@@ -378,7 +379,7 @@ class MainWindow(QMainWindow):
         self.rounds = 0
         self.current_round = 1
         self.last_used_mode = None
-        self.toggle_modes(tracker_mode=False, training_mode=True)
+        self.toggle_modes(tracker_mode=False, training_mode=False)
         self.start_button.setText('Start Timer')  # Change the button text to 'Start Timer'
         self.start_button.setStyleSheet(green_button_style)
         self.pause_button.hide()
@@ -455,8 +456,6 @@ class MainWindow(QMainWindow):
 
     def start_timer_and_video(self):
         self.last_used_mode = "Tracking"
-        self.start_timer()
-        self.phase_label.show()
         if self.thread is None or not self.thread.isRunning() or self.again:
             if self.again:
                 self.again = False
@@ -465,13 +464,13 @@ class MainWindow(QMainWindow):
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.flash_needed.connect(self.flash_color)  # Connect the new signal
             self.thread.start()
+        self.start_timer()
+        self.phase_label.show()
         self.image_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
 
     def start_training_mode(self):
         self.last_used_mode = "Training"
-        self.start_timer()
-        self.phase_label.show()
         # Ensure only one instance of VideoThread is running
         if self.thread is None or not self.thread.isRunning() or self.again:
             if self.again:
@@ -482,6 +481,8 @@ class MainWindow(QMainWindow):
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.flash_needed.connect(self.flash_color)
             self.thread.start()
+        self.start_timer()
+        self.phase_label.show()
         self.image_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
 
