@@ -13,6 +13,7 @@ from HistoryManager import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.again = False
         self.last_used_mode = None
         self.start_training_mode_button = None
         self.is_training_mode_active = False
@@ -301,6 +302,7 @@ class MainWindow(QMainWindow):
 
     # Timer functions
     def start_timer(self):
+        self.again = False
         self.rounds = int(self.round_input.text())
         work_seconds = int(self.work_input.text())
         rest_seconds = int(self.rest_input.text())
@@ -366,13 +368,17 @@ class MainWindow(QMainWindow):
             play_ding()
             self.timer_label.setText("Done!")
             self.update_round_label()
+            self.again = True
             show_session_complete_message()
             self.timer_label.setText("00:00")
+            self.image_label.hide()
             self.reset_timer()
 
     def reset_timer(self):
         self.rounds = 0
         self.current_round = 1
+        self.last_used_mode = None
+        self.toggle_modes(tracker_mode=False, training_mode=True)
         self.start_button.setText('Start Timer')  # Change the button text to 'Start Timer'
         self.start_button.setStyleSheet(green_button_style)
         self.pause_button.hide()
@@ -451,7 +457,9 @@ class MainWindow(QMainWindow):
         self.last_used_mode = "Tracking"
         self.start_timer()
         self.phase_label.show()
-        if self.thread is None or not self.thread.isRunning():
+        if self.thread is None or not self.thread.isRunning() or self.again:
+            if self.again:
+                self.again = False
             self.thread = VideoThread()  # No need to pass flash_screen_callback
             self.toggle_modes(tracker_mode=True, training_mode=False)
             self.thread.change_pixmap_signal.connect(self.set_image)
@@ -465,7 +473,9 @@ class MainWindow(QMainWindow):
         self.start_timer()
         self.phase_label.show()
         # Ensure only one instance of VideoThread is running
-        if self.thread is None or not self.thread.isRunning():
+        if self.thread is None or not self.thread.isRunning() or self.again:
+            if self.again:
+                self.again = False
             self.is_training_mode_active = True
             self.thread = VideoThread(mode='training')
             self.toggle_modes(tracker_mode=False, training_mode=True)
