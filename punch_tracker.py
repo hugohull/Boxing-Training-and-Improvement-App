@@ -1,8 +1,14 @@
+import os
 import random
+import threading
 
 import cv2
 import numpy as np
 import time
+
+from pygame import mixer
+from gtts import gTTS
+
 from HistoryManager import *
 
 # set screen settings
@@ -147,17 +153,38 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
         if update_gui_func is not None:
             update_gui_func(flip_img)
 
+mixer.init()
+
+# Function to speak the current combination using gTTS
+def speak_combination(combination):
+    def tts_thread():
+        text = ', '.join(combination) + '. Go'
+        tts = gTTS(text=text, lang='en')
+        temp_file = "temp_combination.mp3"
+        tts.save(temp_file)
+        mixer.music.load(temp_file)
+        mixer.music.play()
+        while mixer.music.get_busy():  # Wait for the audio to finish playing
+            continue
+        os.remove(temp_file)  # Clean up the temporary file
+
+    # Create and start a new thread for the TTS function
+    threading.Thread(target=tts_thread).start()
+
 
 def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, should_stop=lambda: False):
     load_punch_history()
 
     def generate_random_combination():
-        punches = ['Left Head', 'Left Body', 'Right Head', 'Right Body']
+        # punches = ['Left Head', 'Left Body', 'Right Head', 'Right Body']
+        punches = ['Left Head', 'Left Body']
         num_punches = random.randint(1, 4)  # Generate a random number of punches (1 to 4)
         return [random.choice(punches) for _ in range(num_punches)]
 
     current_combination = generate_random_combination()
     print(current_combination)
+    speak_combination(current_combination)  # Speak the current combination
+
     detected_punches = []
 
     while not should_stop():
