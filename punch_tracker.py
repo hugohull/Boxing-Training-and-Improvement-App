@@ -238,7 +238,7 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     detected_punches.append(f'Left {body_part}')
                     if flash_screen_callback is not None:
                         flash_screen_callback('red')
-                    # print(detected_punches)
+                    print(detected_punches)
 
         # Detect blue punches
         contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -251,7 +251,7 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     detected_punches.append(f'Right {body_part}')
                     if flash_screen_callback is not None:
                         flash_screen_callback('blue')
-                    # print(detected_punches)
+                    print(detected_punches)
 
         # Detect if the combination detected is = the set combination
         if track_punches_flag():
@@ -268,6 +268,23 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     play_incorrect()
                     detected_punches = []
 
+        text = ', '.join(current_combination)  # Convert the combination list to a string
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 1
+        thickness = 2
+        text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
+
+        frame_width = img.shape[1]
+        start_x = frame_width - text_size[0] - 10  # 10 pixels from the right edge
+        start_y = 50  # Assuming you still want it near the top
+
+        blank_image = np.zeros_like(img)
+        cv2.putText(blank_image, text, (start_x, start_y), font, font_scale, (255, 255, 255), thickness)
+        flipped_text_image = cv2.flip(blank_image, 1)
+
+        non_zero_indices = np.where(flipped_text_image != [0, 0, 0])
+        img[non_zero_indices[0], non_zero_indices[1], :] = flipped_text_image[non_zero_indices[0], non_zero_indices[1],
+                                                           :]
         # Add line
         cv2.line(img, START, END, COLOUR, THICKNESS)
 
