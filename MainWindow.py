@@ -60,7 +60,13 @@ class MainWindow(QMainWindow):
 
     def flash_color(self, color):
         # Set the background color to red or blue depending on the detected object
-        color_hex = 'rgba(255, 0, 0, 200)' if color == 'red' else 'rgba(0, 0, 255, 200)'
+        if color == 'red':
+            color_hex = 'rgba(255, 0, 0, 200)'
+        elif color == 'blue':
+            color_hex = 'rgba(0, 0, 255, 200)'
+        elif color == 'green':
+            color_hex = 'rgba(0, 255, 0, 200)'
+
         self.image_label.setStyleSheet(f"border: 5px solid {color_hex};")
         self.flash_timer.start(200)  # Start the timer for the flash duration
 
@@ -459,7 +465,7 @@ class MainWindow(QMainWindow):
         if self.thread is None or not self.thread.isRunning() or self.again:
             if self.again:
                 self.again = False
-            self.thread = VideoThread()  # No need to pass flash_screen_callback
+            self.thread = VideoThread()
             self.toggle_modes(tracker_mode=True, training_mode=False)
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.flash_needed.connect(self.flash_color)  # Connect the new signal

@@ -263,11 +263,16 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     print(current_combination)  # Print the new combination
                     speak_combination(current_combination)
                     detected_punches = []
+                    if flash_screen_callback is not None:
+                        flash_screen_callback('green')
                 else:
                     print("Try Again")
                     play_incorrect()
                     detected_punches = []
+                    if flash_screen_callback is not None:
+                        flash_screen_callback('red')
 
+        # Text settings
         text = ', '.join(current_combination)  # Convert the combination list to a string
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 1
