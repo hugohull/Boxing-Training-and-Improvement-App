@@ -2,7 +2,7 @@ import cv2
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtGui import QImage
 
-from punch_tracker import run_punch_tracker, run_training_mode
+from punch_tracker import run_punch_tracker, run_training_mode, run_competition_mode
 
 
 class VideoThread(QThread):
@@ -27,7 +27,13 @@ class VideoThread(QThread):
 
         while self._is_running:
             if self.mode == 'training':
-                run_training_mode(
+                # run_training_mode(
+                #     update_gui_func=self.update_frame,
+                #     track_punches_flag=lambda: self.training_mode_active,
+                #     flash_screen_callback=self.flash_needed.emit,
+                #     should_stop=lambda: not self._is_running,
+                # )
+                run_competition_mode(
                     update_gui_func=self.update_frame,
                     track_punches_flag=lambda: self.training_mode_active,
                     flash_screen_callback=self.flash_needed.emit,

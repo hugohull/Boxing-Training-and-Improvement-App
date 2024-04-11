@@ -19,7 +19,9 @@ frameHeight = 540
 
 # Line configuration
 START = (1000, 0)
+START_GAME = (frameWidth // 2, 0)
 END = (1000, 800)
+END_GAME = (frameWidth // 2, 800)
 COLOUR = (0, 255, 0)
 THICKNESS = 9
 
@@ -168,7 +170,7 @@ def speak_combination(combination):
         audio = AudioSegment.from_mp3(temp_file)
         play(audio)
 
-        if temp_file is not None:
+        if temp_file is not None and os.path.exists(temp_file):
             os.remove(temp_file)
 
     # Create and start a new thread for the TTS function
@@ -180,8 +182,8 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
     load_punch_history()
 
     def generate_random_combination():
-        # punches = ['Left Head', 'Left Body', 'Right Head', 'Right Body']
-        punches = ['Left Head', 'Left Body']
+        punches = ['Left Head', 'Left Body', 'Right Head', 'Right Body']
+        # punches = ['Left Head', 'Left Body']
         num_punches = random.randint(1, 4)  # Generate a random number of punches (1 to 4)
         return [random.choice(punches) for _ in range(num_punches)]
 
@@ -292,6 +294,116 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                                                            :]
         # Add line
         cv2.line(img, START, END, COLOUR, THICKNESS)
+
+        # Update GUI
+        if update_gui_func:
+            flip_img = cv2.flip(img, 1)
+            update_gui_func(flip_img)
+
+def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,
+                         should_stop=lambda: False):
+    load_punch_history()
+
+    def generate_random_combination():
+        punches = ['Body', 'Head']
+        num_punches = random.randint(1, 4)  # Generate a random number of punches (1 to 4)
+        return [random.choice(punches) for _ in range(num_punches)]
+
+    current_combination = generate_random_combination()
+    print(f"Target Combination: {current_combination}")
+    speak_combination(current_combination)
+
+    red_score = 0
+    blue_score = 0
+    detected_punches_red = []
+    detected_punches_blue = []
+
+    while not should_stop():
+        success, img = cap.read()
+        if not success:
+            break
+
+        # Convert to HSV color space
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+        # Using the same color ranges for red and blue as in run_punch_tracker
+        lower_red1 = np.array([170, 75, 50])
+        upper_red1 = np.array([180, 255, 255])
+        lower_blue = np.array([85, 50, 40])
+        upper_blue = np.array([145, 255, 255])
+
+        # Create masks for red and blue
+        mask_red = cv2.inRange(hsv, lower_red1, upper_red1)
+        mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
+
+        # Find contours and draw them for red
+        contours_red, _ = cv2.findContours(mask_red, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours_red:
+            area = cv2.contourArea(cnt)
+            if area > 400 and track_punches_flag():
+                x, y, w, h = cv2.boundingRect(cnt)
+                # if x > frameWidth / 2:
+                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
+
+        # Find contours and draw them for blue
+        contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours_blue:
+            area = cv2.contourArea(cnt)
+            if area > 400 and track_punches_flag():
+                x, y, w, h = cv2.boundingRect(cnt)
+                # if x > frameWidth / 2:
+                cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
+
+        # Detect red punches
+        contours_red, _ = cv2.findContours(mask_red, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours_red:
+            area = cv2.contourArea(cnt)
+            if area > 400 and track_punches_flag():
+                x, y, w, h = cv2.boundingRect(cnt)
+                if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START_GAME, END_GAME) and can_detect_again('red'):
+                    body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
+                    detected_punches_red.append(f'{body_part}')
+                    if flash_screen_callback is not None:
+                        flash_screen_callback('red')
+                    print(f"Red: {detected_punches_red}")
+
+        # Detect blue punches
+        contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours_blue:
+            area = cv2.contourArea(cnt)
+            if area > 400 and track_punches_flag():
+                x, y, w, h = cv2.boundingRect(cnt)
+                if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START_GAME, END_GAME) and can_detect_again('blue'):
+                    body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
+                    detected_punches_blue.append(f'{body_part}')
+                    if flash_screen_callback is not None:
+                        flash_screen_callback('blue')
+                    print(f"Blue: {detected_punches_blue}")
+
+        # Check if red or blue completed the combination
+        if track_punches_flag():
+            if len(detected_punches_red) >= len(current_combination) or len(detected_punches_blue) >= len(
+                    current_combination):
+                if detected_punches_red == current_combination:
+                    red_score += 1
+                    print("Red scores a point!")
+                    flash_screen_callback('red')
+                elif detected_punches_blue == current_combination:
+                    blue_score += 1
+                    print("Blue scores a point!")
+                    flash_screen_callback('blue')
+                else:
+                    print("No valid combination thrown by either player. Try Again.")
+                    flash_screen_callback('red')  # Red flash to indicate error
+
+                # Generate a new combination and reset detected punches
+                current_combination = generate_random_combination()
+                print(f"New Target Combination: {current_combination}")
+                speak_combination(current_combination)
+                detected_punches_red = []
+                detected_punches_blue = []
+
+        cv2.line(img, START_GAME, END_GAME, COLOUR, THICKNESS)
 
         # Update GUI
         if update_gui_func:
