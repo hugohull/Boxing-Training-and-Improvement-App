@@ -6,7 +6,8 @@ import cv2
 import numpy as np
 import time
 
-from pygame import mixer
+from pydub import AudioSegment
+from pydub.playback import play
 from gtts import gTTS
 
 from HistoryManager import *
@@ -155,9 +156,6 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
             update_gui_func(flip_img)
 
 
-mixer.init()
-
-
 # Function to speak the current combination using gTTS
 def speak_combination(combination):
     def tts_thread():
@@ -165,11 +163,12 @@ def speak_combination(combination):
         tts = gTTS(text=text, lang='en')
         temp_file = "temp_combination.mp3"
         tts.save(temp_file)
-        mixer.music.load(temp_file)
-        mixer.music.play()
-        while mixer.music.get_busy():  # Wait for the audio to finish playing
-            continue
-        os.remove(temp_file)  # Clean up the temporary file
+
+        # Load the temporary file with Pydub
+        audio = AudioSegment.from_mp3(temp_file)
+        play(audio)
+
+        os.remove(temp_file)
 
     # Create and start a new thread for the TTS function
     threading.Thread(target=tts_thread).start()
