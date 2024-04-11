@@ -168,7 +168,8 @@ def speak_combination(combination):
         audio = AudioSegment.from_mp3(temp_file)
         play(audio)
 
-        os.remove(temp_file)
+        if temp_file is not None:
+            os.remove(temp_file)
 
     # Create and start a new thread for the TTS function
     threading.Thread(target=tts_thread).start()
