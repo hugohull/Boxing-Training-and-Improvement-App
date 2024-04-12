@@ -19,9 +19,9 @@ frameHeight = 540
 
 # Line configuration
 START = (1000, 0)
-START_GAME = (frameWidth // 2, 0)
+START_GAME = (700, 0)
 END = (1000, 800)
-END_GAME = (frameWidth // 2, 800)
+END_GAME = (700, 800)
 COLOUR = (0, 255, 0)
 THICKNESS = 9
 
@@ -283,7 +283,7 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
 
         frame_width = img.shape[1]
         start_x = frame_width - text_size[0] - 10  # 10 pixels from the right edge
-        start_y = 50  # Assuming you still want it near the top
+        start_y = 50
 
         blank_image = np.zeros_like(img)
         cv2.putText(blank_image, text, (start_x, start_y), font, font_scale, (255, 255, 255), thickness)
