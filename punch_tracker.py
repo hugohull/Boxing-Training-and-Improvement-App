@@ -415,21 +415,16 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
 
         cv2.line(img, START_GAME, END_GAME, COLOUR, THICKNESS)
 
-        # Update GUI
-        if update_gui_func:
-            flip_img = cv2.flip(img, 1)
-            update_gui_func(flip_img)
-
         # Create a blank image to write text
         blank_image = np.zeros_like(img)
 
         # Calculate text size for alignment and determine positions
-        red_text_size = cv2.getTextSize(red_score_text, font, font_scale, thickness)[0]
+        # red_text_size = cv2.getTextSize(red_score_text, font, font_scale, thickness)[0]
         blue_text_size = cv2.getTextSize(blue_score_text, font, font_scale, thickness)[0]
         combination_text_size = cv2.getTextSize(combination_text, font, font_scale, thickness)[0]
 
         red_score_position = (10, 50)  # Top left corner
-        blue_score_position = (frameWidth - blue_text_size[0] - 10, 50)  # Top right corner
+        blue_score_position = (1250 - blue_text_size[0] - 10, 50)  # Top right corner
         combination_position = (frameWidth // 2 - combination_text_size[0] // 2, frameHeight - 30)  # Bottom center
 
         # Draw the scores and combination on the blank image
@@ -444,3 +439,9 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
         non_zero_indices = np.where(flipped_text_image != [0, 0, 0])
         img[non_zero_indices[0], non_zero_indices[1], :] = flipped_text_image[non_zero_indices[0], non_zero_indices[1],
                                                            :]
+
+        # Update GUI
+        if update_gui_func:
+            flip_img = cv2.flip(img, 1)
+            update_gui_func(flip_img)
+
