@@ -19,9 +19,9 @@ frameHeight = 540
 
 # Line configuration
 START = (1000, 0)
-START_GAME = (700, 0)
+START_GAME = (630, 0)
 END = (1000, 800)
-END_GAME = (700, 800)
+END_GAME = (630, 800)
 COLOUR = (0, 255, 0)
 THICKNESS = 9
 
@@ -293,7 +293,8 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
         img[non_zero_indices[0], non_zero_indices[1], :] = flipped_text_image[non_zero_indices[0], non_zero_indices[1],
                                                            :]
         # Add line
-        cv2.line(img, START, END, COLOUR, THICKNESS)
+        if track_punches_flag():
+            cv2.line(img, START, END, COLOUR, THICKNESS)
 
         # Update GUI
         if update_gui_func:
@@ -306,7 +307,7 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
 
     def generate_random_combination():
         punches = ['Body', 'Head']
-        num_punches = random.randint(1, 4)  # Generate a random number of punches (1 to 4)
+        num_punches = random.randint(1, 1)  # Generate a random number of punches (1 to 4)
         return [random.choice(punches) for _ in range(num_punches)]
 
     current_combination = generate_random_combination()
@@ -403,9 +404,43 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                 detected_punches_red = []
                 detected_punches_blue = []
 
+        # Score and combination display settings
+        red_score_text = f"Red: {red_score}"
+        blue_score_text = f"Blue: {blue_score}"
+        combination_text = ', '.join(current_combination)  # Convert the combination list to a string
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 1
+        thickness = 2
+
         cv2.line(img, START_GAME, END_GAME, COLOUR, THICKNESS)
 
         # Update GUI
         if update_gui_func:
             flip_img = cv2.flip(img, 1)
             update_gui_func(flip_img)
+
+        # Create a blank image to write text
+        blank_image = np.zeros_like(img)
+
+        # Calculate text size for alignment and determine positions
+        red_text_size = cv2.getTextSize(red_score_text, font, font_scale, thickness)[0]
+        blue_text_size = cv2.getTextSize(blue_score_text, font, font_scale, thickness)[0]
+        combination_text_size = cv2.getTextSize(combination_text, font, font_scale, thickness)[0]
+
+        red_score_position = (10, 50)  # Top left corner
+        blue_score_position = (frameWidth - blue_text_size[0] - 10, 50)  # Top right corner
+        combination_position = (frameWidth // 2 - combination_text_size[0] // 2, frameHeight - 30)  # Bottom center
+
+        # Draw the scores and combination on the blank image
+        cv2.putText(blank_image, red_score_text, red_score_position, font, font_scale, (0, 0, 255), thickness)
+        cv2.putText(blank_image, blue_score_text, blue_score_position, font, font_scale, (255, 0, 0), thickness)
+        cv2.putText(blank_image, combination_text, combination_position, font, font_scale, (255, 255, 255), thickness)
+
+        # Flip the blank image horizontally
+        flipped_text_image = cv2.flip(blank_image, 1)
+
+        # Apply the flipped text image back to the original image
+        non_zero_indices = np.where(flipped_text_image != [0, 0, 0])
+        img[non_zero_indices[0], non_zero_indices[1], :] = flipped_text_image[non_zero_indices[0], non_zero_indices[1],
+                                                           :]
