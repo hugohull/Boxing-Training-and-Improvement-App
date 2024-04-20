@@ -67,8 +67,9 @@ def intersects_with_line(x, y, w, h, line_start, line_end):
 
 
 def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,
-                      should_stop=lambda: False):
+                      should_stop=lambda: False, lock=None):
     load_punch_history()
+
     # Main program
     while not should_stop():
         success, img = cap.read()
@@ -178,7 +179,7 @@ def speak_combination(combination):
 
 
 def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,
-                      should_stop=lambda: False):
+                      new_combination_callback=None, should_stop=lambda: False):
     load_punch_history()
 
     def generate_random_combination():
@@ -192,6 +193,8 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
     speak_combination(current_combination)  # Speak the current combination
 
     detected_punches = []
+
+    new_combination_callback(',  '.join(current_combination))
 
     while not should_stop():
         success, img = cap.read()
@@ -264,6 +267,8 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     current_combination = generate_random_combination()  # Generate a new combination for the next round
                     print(current_combination)  # Print the new combination
                     speak_combination(current_combination)
+                    new_combination_callback(',  '.join(current_combination))
+                    print("Emitting new combination:", ' '.join(current_combination))
                     detected_punches = []
                     if flash_screen_callback is not None:
                         flash_screen_callback('green')
@@ -274,32 +279,32 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     if flash_screen_callback is not None:
                         flash_screen_callback('red')
 
-        # Text settings
-        text = ', '.join(current_combination)  # Convert the combination list to a string
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 1
-        thickness = 2
-        text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
-
-        frame_width = img.shape[1]
-        start_x = frame_width - text_size[0] - 10  # 10 pixels from the right edge
-        start_y = 50
-
-        blank_image = np.zeros_like(img)
-        cv2.putText(blank_image, text, (start_x, start_y), font, font_scale, (255, 255, 255), thickness)
-        flipped_text_image = cv2.flip(blank_image, 1)
-
-        non_zero_indices = np.where(flipped_text_image != [0, 0, 0])
-        img[non_zero_indices[0], non_zero_indices[1], :] = flipped_text_image[non_zero_indices[0], non_zero_indices[1],
-                                                           :]
+        # # Text settings
+        # text = ', '.join(current_combination)  # Convert the combination list to a string
+        # font = cv2.FONT_HERSHEY_SIMPLEX
+        # font_scale = 1
+        # thickness = 2
+        # text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
+        #
+        # frame_width = img.shape[1]
+        # start_x = frame_width - text_size[0] - 10  # 10 pixels from the right edge
+        # start_y = 50
+        #
+        # blank_image = np.zeros_like(img)
+        # cv2.putText(blank_image, text, (start_x, start_y), font, font_scale, (255, 255, 255), thickness)
+        # flipped_text_image = cv2.flip(blank_image, 1)
+        #
+        # non_zero_indices = np.where(flipped_text_image != [0, 0, 0])
+        # img[non_zero_indices[0], non_zero_indices[1], :] = flipped_text_image[non_zero_indices[0], non_zero_indices[1],
+        #                                                    :]
         # Add line
-        if track_punches_flag():
-            cv2.line(img, START, END, COLOUR, THICKNESS)
+        cv2.line(img, START, END, COLOUR, THICKNESS)
 
         # Update GUI
         if update_gui_func:
             flip_img = cv2.flip(img, 1)
             update_gui_func(flip_img)
+
 
 def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,
                          should_stop=lambda: False):
@@ -361,7 +366,8 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
             area = cv2.contourArea(cnt)
             if area > 400 and track_punches_flag():
                 x, y, w, h = cv2.boundingRect(cnt)
-                if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START_GAME, END_GAME) and can_detect_again('red'):
+                if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START_GAME, END_GAME) and can_detect_again(
+                        'red'):
                     body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
                     detected_punches_red.append(f'{body_part}')
                     if flash_screen_callback is not None:
@@ -374,7 +380,8 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
             area = cv2.contourArea(cnt)
             if area > 400 and track_punches_flag():
                 x, y, w, h = cv2.boundingRect(cnt)
-                if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START_GAME, END_GAME) and can_detect_again('blue'):
+                if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START_GAME, END_GAME) and can_detect_again(
+                        'blue'):
                     body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
                     detected_punches_blue.append(f'{body_part}')
                     if flash_screen_callback is not None:
@@ -415,16 +422,21 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
 
         cv2.line(img, START_GAME, END_GAME, COLOUR, THICKNESS)
 
+        # Update GUI
+        if update_gui_func:
+            flip_img = cv2.flip(img, 1)
+            update_gui_func(flip_img)
+
         # Create a blank image to write text
         blank_image = np.zeros_like(img)
 
         # Calculate text size for alignment and determine positions
-        # red_text_size = cv2.getTextSize(red_score_text, font, font_scale, thickness)[0]
+        red_text_size = cv2.getTextSize(red_score_text, font, font_scale, thickness)[0]
         blue_text_size = cv2.getTextSize(blue_score_text, font, font_scale, thickness)[0]
         combination_text_size = cv2.getTextSize(combination_text, font, font_scale, thickness)[0]
 
         red_score_position = (10, 50)  # Top left corner
-        blue_score_position = (1250 - blue_text_size[0] - 10, 50)  # Top right corner
+        blue_score_position = (frameWidth - blue_text_size[0] - 10, 50)  # Top right corner
         combination_position = (frameWidth // 2 - combination_text_size[0] // 2, frameHeight - 30)  # Bottom center
 
         # Draw the scores and combination on the blank image
@@ -439,9 +451,3 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
         non_zero_indices = np.where(flipped_text_image != [0, 0, 0])
         img[non_zero_indices[0], non_zero_indices[1], :] = flipped_text_image[non_zero_indices[0], non_zero_indices[1],
                                                            :]
-
-        # Update GUI
-        if update_gui_func:
-            flip_img = cv2.flip(img, 1)
-            update_gui_func(flip_img)
-

@@ -10,6 +10,7 @@ class VideoThread(QThread):
     flash_needed = pyqtSignal(str)
     # Define a signal for when a specific punch combination is detected
     combination_detected_signal = pyqtSignal(bool)
+    new_combination_signal = pyqtSignal(str)
 
     def __init__(self, parent=None, mode='regular'):
         super(VideoThread, self).__init__(parent)
@@ -27,25 +28,26 @@ class VideoThread(QThread):
 
         while self._is_running:
             if self.mode == 'training':
-                # run_training_mode(
+                run_training_mode(
+                    update_gui_func=self.update_frame,
+                    track_punches_flag=lambda: self.training_mode_active,
+                    flash_screen_callback=self.flash_needed.emit,
+                    new_combination_callback=self.new_combination_signal.emit,
+                    should_stop=lambda: not self._is_running,
+                )
+                # run_competition_mode(
                 #     update_gui_func=self.update_frame,
                 #     track_punches_flag=lambda: self.training_mode_active,
                 #     flash_screen_callback=self.flash_needed.emit,
                 #     should_stop=lambda: not self._is_running,
                 # )
-                run_competition_mode(
-                    update_gui_func=self.update_frame,
-                    track_punches_flag=lambda: self.training_mode_active,
-                    flash_screen_callback=self.flash_needed.emit,
-                    should_stop=lambda: not self._is_running,
-                )
             else:
                 run_punch_tracker(
                     update_gui_func=self.update_frame,
                     track_punches_flag=lambda: self.tracker_mode_active,
                     flash_screen_callback=self.flash_needed.emit,
                     should_stop=lambda: not self._is_running,
-                                  )
+                )
 
             if not self._is_running:
                 print("self._is_running is False")
@@ -66,3 +68,4 @@ class VideoThread(QThread):
         convert_to_Qt_format = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
         p = convert_to_Qt_format.scaled(640, 480, aspectRatioMode=Qt.KeepAspectRatio)
         self.change_pixmap_signal.emit(p)
+

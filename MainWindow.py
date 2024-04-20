@@ -13,6 +13,7 @@ from HistoryManager import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.combination_label = None
         self.again = False
         self.last_used_mode = None
         self.start_training_mode_button = None
@@ -218,6 +219,12 @@ class MainWindow(QMainWindow):
         self.phase_label.setAlignment(Qt.AlignCenter)
         self.phase_label.setStyleSheet("font-size: 28px; font-weight: bold;")
 
+        # Combination Label
+        self.combination_label = QLabel('Combination', self)  # Initial text is empty
+        self.combination_label.setAlignment(Qt.AlignCenter)
+        self.combination_label.setStyleSheet("font-size: 28px; font-weight: bold;")
+        self.combination_label.hide()
+
         # Inputs
         self.round_input = QLineEdit(self)
         self.work_input = QLineEdit(self)
@@ -292,6 +299,7 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(form_layout)
         main_layout.addWidget(button_container)
         main_layout.addWidget(self.image_label)
+        main_layout.addWidget(self.combination_label)
 
         # Set the layout to the timer page
         self.timerPage.setLayout(main_layout)
@@ -379,6 +387,7 @@ class MainWindow(QMainWindow):
             show_session_complete_message()
             self.timer_label.setText("00:00")
             self.image_label.hide()
+            self.combination_label.hide()
             self.reset_timer()
 
     def reset_timer(self):
@@ -443,6 +452,7 @@ class MainWindow(QMainWindow):
         if self.thread is not None:
             # self.thread.stop()
             self.image_label.hide()
+            self.combination_label.hide()
             self.thread = None
         self.timer.stop()  # Stop the timer
         self.phase_label.setText('Done!')
@@ -483,6 +493,8 @@ class MainWindow(QMainWindow):
                 self.again = False
             self.is_training_mode_active = True
             self.thread = VideoThread(mode='training')
+            self.thread.new_combination_signal.connect(self.update_combination_display)
+            print("Signal connected to update_combination_display")
             self.toggle_modes(tracker_mode=False, training_mode=True)
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.flash_needed.connect(self.flash_color)
@@ -490,7 +502,13 @@ class MainWindow(QMainWindow):
         self.start_timer()
         self.phase_label.show()
         self.image_label.show()
+        self.combination_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
+
+    def update_combination_display(self, combination):
+        # Update the GUI with the new combination
+        self.combination_label.setText(f"Combination: {combination}")
+        print("Label updated to:", combination)
 
     def update_history_labels(self):
         punch_history = load_punch_history()
