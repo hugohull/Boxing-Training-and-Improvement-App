@@ -13,6 +13,7 @@ from HistoryManager import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.is_competition_mode_active = None
         self.combination_label = None
         self.again = False
         self.last_used_mode = None
@@ -245,6 +246,9 @@ class MainWindow(QMainWindow):
         self.start_training_mode_button = QPushButton('Start Training Mode', self)
         self.start_training_mode_button.setStyleSheet(green_button_style)
         self.start_training_mode_button.clicked.connect(self.start_training_mode)
+        self.start_competition_mode_button = QPushButton('Start Competition Mode', self)
+        self.start_competition_mode_button.setStyleSheet(green_button_style)
+        self.start_competition_mode_button.clicked.connect(self.start_competition_mode)
         self.pause_button = QPushButton('Pause Timer', self)
         self.pause_button.setStyleSheet(blue_button_style)
         self.pause_button.clicked.connect(self.toggle_pause)
@@ -266,6 +270,7 @@ class MainWindow(QMainWindow):
         buttons_layout.addWidget(self.start_button)
         buttons_layout.addWidget(self.start_with_video_button)
         buttons_layout.addWidget(self.start_training_mode_button)
+        buttons_layout.addWidget(self.start_competition_mode_button)
         buttons_layout.addWidget(self.pause_button)
         buttons_layout.setAlignment(Qt.AlignCenter)
         button_container.setLayout(buttons_layout)
@@ -340,9 +345,9 @@ class MainWindow(QMainWindow):
 
     def start_work(self):
         if self.last_used_mode == "Tracking":
-            self.toggle_modes(tracker_mode=True, training_mode=False)
+            self.toggle_modes(tracker_mode=True, training_mode=False, competition_mode=False)
         elif self.last_used_mode == "Training":
-            self.toggle_modes(tracker_mode=False, training_mode=True)
+            self.toggle_modes(tracker_mode=False, training_mode=True, competition_mode=False)
         self.current_phase = 'work'
         self.phase_label.show()
         self.phase_label.setText('Work')  # Update the phase label text
@@ -360,7 +365,7 @@ class MainWindow(QMainWindow):
         self.rest_input.hide()
 
     def start_rest(self):
-        self.toggle_modes(tracker_mode=False, training_mode=False)
+        self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=False)
         self.current_phase = 'rest'
         self.phase_label.setText('Rest')
         self.current_phase = 'rest'
@@ -383,7 +388,7 @@ class MainWindow(QMainWindow):
             self.timer_label.setText("Done!")
             self.update_round_label()
             self.again = True
-            self.toggle_modes(tracker_mode=False, training_mode=False)
+            self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=False)
             show_session_complete_message()
             self.timer_label.setText("00:00")
             self.image_label.hide()
@@ -394,7 +399,7 @@ class MainWindow(QMainWindow):
         self.rounds = 0
         self.current_round = 1
         self.last_used_mode = None
-        self.toggle_modes(tracker_mode=False, training_mode=False)
+        self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=False)
         self.start_button.setText('Start Timer')  # Change the button text to 'Start Timer'
         self.start_button.setStyleSheet(green_button_style)
         self.pause_button.hide()
@@ -430,15 +435,15 @@ class MainWindow(QMainWindow):
     def toggle_pause(self):
         if self.timer.isActive():
             self.track_punches = False
-            self.toggle_modes(tracker_mode=False, training_mode=False)
+            self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=False)
             self.timer.stop()
             self.pause_button.setText('Resume Timer')
             self.pause_button.setStyleSheet(green_button_style)  # Optional: Change style if you want to indicate resume
         else:
             if self.last_used_mode == "Tracking":
-                self.toggle_modes(tracker_mode=True, training_mode=False)
+                self.toggle_modes(tracker_mode=True, training_mode=False, competition_mode=False)
             elif self.last_used_mode == "Training":
-                self.toggle_modes(tracker_mode=False, training_mode=True)
+                self.toggle_modes(tracker_mode=False, training_mode=True, competition_mode=False)
             self.timer.start(1000)
             self.pause_button.setText('Pause Timer')
             self.pause_button.setStyleSheet(blue_button_style)
@@ -448,7 +453,7 @@ class MainWindow(QMainWindow):
         self.round_label.setText(f'Round {self.current_round:02}/{self.default_round}')
 
     def stop_timer(self):
-        self.toggle_modes(tracker_mode=False, training_mode=False)
+        self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=False)
         if self.thread is not None:
             # self.thread.stop()
             self.image_label.hide()
@@ -463,12 +468,14 @@ class MainWindow(QMainWindow):
         if self.thread is not None:
             self.image_label.setPixmap(QPixmap.fromImage(image))
 
-    def toggle_modes(self, tracker_mode, training_mode):
+    def toggle_modes(self, tracker_mode, training_mode, competition_mode):
         if self.thread:
             self.thread.tracker_mode_active = tracker_mode
             self.thread.training_mode_active = training_mode
+            self.thread.competition_mode_active = competition_mode
         self.is_tracker_mode_active = tracker_mode
         self.is_training_mode_active = training_mode
+        self.is_competition_mode_active = competition_mode
 
     def start_timer_and_video(self):
         self.last_used_mode = "Tracking"
@@ -476,7 +483,7 @@ class MainWindow(QMainWindow):
             if self.again:
                 self.again = False
             self.thread = VideoThread()
-            self.toggle_modes(tracker_mode=True, training_mode=False)
+            self.toggle_modes(tracker_mode=True, training_mode=False, competition_mode=False)
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.flash_needed.connect(self.flash_color)  # Connect the new signal
             self.thread.start()
@@ -495,12 +502,31 @@ class MainWindow(QMainWindow):
             self.thread = VideoThread(mode='training')
             self.thread.new_combination_signal.connect(self.update_combination_display)
             print("Signal connected to update_combination_display")
-            self.toggle_modes(tracker_mode=False, training_mode=True)
+            self.toggle_modes(tracker_mode=False, training_mode=True, competition_mode=False)
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.flash_needed.connect(self.flash_color)
             self.thread.start()
         self.start_timer()
         self.phase_label.show()
+        self.image_label.show()
+        self.combination_label.show()
+        self.image_label.setAlignment(Qt.AlignCenter)
+        
+    def start_competition_mode(self):
+        self.last_used_mode = "Competition"
+        if self.thread is None or not self.thread.isRunning() or self.again:
+            if self.again:
+                self.again = False
+            self.is_competition_mode_active = True
+            self.thread = VideoThread(mode='competition')
+            self.thread.new_combination_signal.connect(self.update_combination_display)
+            self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=True)
+            self.thread.change_pixmap_signal.connect(self.set_image)
+            self.thread.flash_needed.connect(self.flash_color)
+            self.thread.start()
+        self.start_timer()
+        self.phase_label.show()
+        # Change to competition label
         self.image_label.show()
         self.combination_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)

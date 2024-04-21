@@ -306,7 +306,7 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
             update_gui_func(flip_img)
 
 
-def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,
+def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, new_combination_callback=None,
                          should_stop=lambda: False):
     load_punch_history()
 

@@ -19,6 +19,7 @@ class VideoThread(QThread):
         self.track_punches_flag = lambda: True
         self.tracker_mode_active = False  # Set the initial state to False
         self.training_mode_active = False
+        self.competition_mode_active = False
         self.cap = None
 
     def run(self):
@@ -35,12 +36,14 @@ class VideoThread(QThread):
                     new_combination_callback=self.new_combination_signal.emit,
                     should_stop=lambda: not self._is_running,
                 )
-                # run_competition_mode(
-                #     update_gui_func=self.update_frame,
-                #     track_punches_flag=lambda: self.training_mode_active,
-                #     flash_screen_callback=self.flash_needed.emit,
-                #     should_stop=lambda: not self._is_running,
-                # )
+            elif self.mode == 'competition':
+                run_competition_mode(
+                    update_gui_func=self.update_frame,
+                    track_punches_flag=lambda: self.training_mode_active,
+                    flash_screen_callback=self.flash_needed.emit,
+                    new_combination_callback=self.new_combination_signal.emit,
+                    should_stop=lambda: not self._is_running,
+                )
             else:
                 run_punch_tracker(
                     update_gui_func=self.update_frame,
