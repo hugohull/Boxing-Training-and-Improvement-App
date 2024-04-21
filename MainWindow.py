@@ -341,6 +341,7 @@ class MainWindow(QMainWindow):
             self.start_button.clicked.connect(self.stop_timer)
             self.start_with_video_button.hide()
             self.start_training_mode_button.hide()
+            self.start_competition_mode_button.hide()
             self.update_round_label()
 
     def start_work(self):
@@ -409,6 +410,7 @@ class MainWindow(QMainWindow):
         self.start_button.clicked.connect(self.start_timer)
         self.start_with_video_button.show()
         self.start_training_mode_button.show()
+        self.start_competition_mode_button.show()
         # self.image_label.hide()
         self.phase_label.hide()
         # Show inputs and labels
