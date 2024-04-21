@@ -39,7 +39,7 @@ class VideoThread(QThread):
             elif self.mode == 'competition':
                 run_competition_mode(
                     update_gui_func=self.update_frame,
-                    track_punches_flag=lambda: self.training_mode_active,
+                    track_punches_flag=lambda: self.competition_mode_active,
                     flash_screen_callback=self.flash_needed.emit,
                     new_combination_callback=self.new_combination_signal.emit,
                     should_stop=lambda: not self._is_running,

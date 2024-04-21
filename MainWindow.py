@@ -511,7 +511,7 @@ class MainWindow(QMainWindow):
         self.image_label.show()
         self.combination_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
-        
+
     def start_competition_mode(self):
         self.last_used_mode = "Competition"
         if self.thread is None or not self.thread.isRunning() or self.again:
