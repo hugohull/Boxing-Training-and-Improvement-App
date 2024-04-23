@@ -14,6 +14,8 @@ from HistoryManager import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.blue_score = 0
+        self.red_score = 0
         self.start_competition_mode_button = None
         self.is_competition_mode_active = None
         self.combination_label = None
@@ -233,7 +235,7 @@ class MainWindow(QMainWindow):
         self.red_score_label.setAlignment(Qt.AlignCenter)
         self.red_score_label.hide()
 
-        self.blue_score_label = QLabel('Red Score: 0', self)
+        self.blue_score_label = QLabel('Bluere Score: 0', self)
         self.blue_score_label.setAlignment(Qt.AlignCenter)
         self.blue_score_label.hide()
 
@@ -421,6 +423,10 @@ class MainWindow(QMainWindow):
         self.pause_button.hide()
         self.timer_label.setText('00:00')
         self.round_label.setText('Round 01/12')
+        self.red_score = 0
+        self.red_score_label.setText("Red score: 0")
+        self.blue_score = 0
+        self.blue_score_label.setText("Blue score: 0")
         self.start_button.clicked.disconnect()
         self.start_button.clicked.connect(self.start_timer)
         self.start_with_video_button.show()
@@ -535,10 +541,12 @@ class MainWindow(QMainWindow):
         self.image_label.setAlignment(Qt.AlignCenter)
 
     def update_red_score(self, score):
-        self.red_score_label.setText(f'Red Score: {score}')
+        self.red_score += 1
+        self.red_score_label.setText(f'Red Score: {self.red_score}')
 
     def update_blue_score(self, score):
-        self.blue_score_label.setText(f'Blue Score: {score}')
+        self.blue_score += 1
+        self.blue_score_label.setText(f'Blue Score: {self.blue_score}')
 
     def start_competition_mode(self):
         self.image_label.enable_line(True, mode="Competition")
