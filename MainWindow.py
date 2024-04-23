@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
 from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont
 
+from ImageLabel import ImageLabel
 from punch_tracker import run_training_mode
 from styles import *
 from utils import play_ding, show_error_message, show_history_updated_message, show_session_complete_message
@@ -13,6 +14,7 @@ from HistoryManager import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.start_competition_mode_button = None
         self.is_competition_mode_active = None
         self.combination_label = None
         self.again = False
@@ -190,7 +192,8 @@ class MainWindow(QMainWindow):
         buttons_layout = QHBoxLayout()
 
         # Labels
-        self.image_label = QLabel(self)
+        self.image_label = ImageLabel(self)
+        self.image_label.enable_line(False)
         self.image_label.setStyleSheet("border: 5px solid transparent;")
         shadow_effect = QGraphicsDropShadowEffect(self.image_label)
         shadow_effect.setBlurRadius(10)  # Shadow size
@@ -455,6 +458,7 @@ class MainWindow(QMainWindow):
         self.round_label.setText(f'Round {self.current_round:02}/{self.default_round}')
 
     def stop_timer(self):
+        self.image_label.enable_line(enable=False)
         self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=False)
         if self.thread is not None:
             # self.thread.stop()
@@ -480,6 +484,7 @@ class MainWindow(QMainWindow):
         self.is_competition_mode_active = competition_mode
 
     def start_timer_and_video(self):
+        self.image_label.enable_line(True, mode="Tracking")
         self.last_used_mode = "Tracking"
         if self.thread is None or not self.thread.isRunning() or self.again:
             if self.again:
@@ -495,6 +500,7 @@ class MainWindow(QMainWindow):
         self.image_label.setAlignment(Qt.AlignCenter)
 
     def start_training_mode(self):
+        self.image_label.enable_line(True, mode="Training")
         self.last_used_mode = "Training"
         # Ensure only one instance of VideoThread is running
         if self.thread is None or not self.thread.isRunning() or self.again:
@@ -515,6 +521,7 @@ class MainWindow(QMainWindow):
         self.image_label.setAlignment(Qt.AlignCenter)
 
     def start_competition_mode(self):
+        self.image_label.enable_line(True, mode="Competition")
         self.last_used_mode = "Competition"
         if self.thread is None or not self.thread.isRunning() or self.again:
             if self.again:

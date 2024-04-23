@@ -149,7 +149,7 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
                     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
         # Add line
-        cv2.line(img, START, END, COLOUR, THICKNESS)
+        # cv2.line(img, START, END, COLOUR, THICKNESS)
 
         # Image flipped
         flip_img = cv2.flip(img, 1)
@@ -280,7 +280,7 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                         flash_screen_callback('red')
 
         # Add line
-        cv2.line(img, START, END, COLOUR, THICKNESS)
+        # cv2.line(img, START, END, COLOUR, THICKNESS)
 
         # Update GUI
         if update_gui_func:
@@ -398,7 +398,7 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                 new_combination_callback(',  '.join(current_combination))
 
 
-        cv2.line(img, START_GAME, END_GAME, COLOUR, THICKNESS)
+        # cv2.line(img, START_GAME, END_GAME, COLOUR, THICKNESS)
 
         # Update GUI
         if update_gui_func:
