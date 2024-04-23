@@ -14,6 +14,8 @@ from HistoryManager import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.red_score_label = None
+        self.blue_score_label = None
         self.blue_score = 0
         self.red_score = 0
         self.start_competition_mode_button = None
@@ -231,13 +233,22 @@ class MainWindow(QMainWindow):
         self.combination_label.setStyleSheet("font-size: 28px; font-weight: bold;")
         self.combination_label.hide()
 
+        # Score labels
         self.red_score_label = QLabel('Red Score: 0', self)
-        self.red_score_label.setAlignment(Qt.AlignCenter)
+        self.red_score_label.setStyleSheet("color: red; font-size: 24px; font-weight: bold")
         self.red_score_label.hide()
 
-        self.blue_score_label = QLabel('Bluere Score: 0', self)
-        self.blue_score_label.setAlignment(Qt.AlignCenter)
+        self.blue_score_label = QLabel('Blue Score: 0', self)
+        self.blue_score_label.setStyleSheet("color: dodgerblue; font-size: 24px; font-weight: bold;")
         self.blue_score_label.hide()
+
+        # Score Layout
+        score_layout = QHBoxLayout()
+        score_layout.setContentsMargins(40, 0, 40, 0)  # Margins: LTRB
+
+        # Add labels to the layout with alignment
+        score_layout.addWidget(self.red_score_label, 0, Qt.AlignLeft)
+        score_layout.addWidget(self.blue_score_label, 0, Qt.AlignRight)
 
         # Inputs
         self.round_input = QLineEdit(self)
@@ -316,10 +327,9 @@ class MainWindow(QMainWindow):
         # Adding widgets to main layout
         main_layout.addLayout(form_layout)
         main_layout.addWidget(button_container)
+        main_layout.addLayout(score_layout)
         main_layout.addWidget(self.image_label)
         main_layout.addWidget(self.combination_label)
-        main_layout.addWidget(self.red_score_label)
-        main_layout.addWidget(self.blue_score_label)
 
         # Set the layout to the timer page
         self.timerPage.setLayout(main_layout)
