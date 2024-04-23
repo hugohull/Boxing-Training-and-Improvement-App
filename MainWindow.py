@@ -231,9 +231,11 @@ class MainWindow(QMainWindow):
 
         self.red_score_label = QLabel('Red Score: 0', self)
         self.red_score_label.setAlignment(Qt.AlignCenter)
+        self.red_score_label.hide()
 
         self.blue_score_label = QLabel('Red Score: 0', self)
         self.blue_score_label.setAlignment(Qt.AlignCenter)
+        self.blue_score_label.hide()
 
         # Inputs
         self.round_input = QLineEdit(self)
@@ -405,6 +407,8 @@ class MainWindow(QMainWindow):
             self.timer_label.setText("00:00")
             self.image_label.hide()
             self.combination_label.hide()
+            self.red_score_label.hide()
+            self.blue_score_label.hide()
             self.reset_timer()
 
     def reset_timer(self):
@@ -472,6 +476,8 @@ class MainWindow(QMainWindow):
             # self.thread.stop()
             self.image_label.hide()
             self.combination_label.hide()
+            self.red_score_label.hide()
+            self.blue_score_label.hide()
             self.thread = None
         self.timer.stop()  # Stop the timer
         self.phase_label.setText('Done!')
@@ -554,6 +560,8 @@ class MainWindow(QMainWindow):
         # Change to competition label
         self.image_label.show()
         self.combination_label.show()
+        self.red_score_label.show()
+        self.blue_score_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
 
     def update_combination_display(self, combination):
