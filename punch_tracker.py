@@ -289,7 +289,7 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
 
 
 def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, new_combination_callback=None,
-                         should_stop=lambda: False):
+                         red_score_callback=None, blue_score_callback=None, should_stop=lambda: False):
     load_punch_history()
 
     def generate_random_combination():
@@ -379,11 +379,13 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                 if detected_punches_red == current_combination:
                     red_score += 1
                     print("Red scores a point!")
+                    red_score_callback(red_score)
                     flash_screen_callback('red')
 
                 elif detected_punches_blue == current_combination:
                     blue_score += 1
                     print("Blue scores a point!")
+                    blue_score_callback(blue_score)
                     flash_screen_callback('blue')
                 else:
                     print("No valid combination thrown by either player. Try Again.")

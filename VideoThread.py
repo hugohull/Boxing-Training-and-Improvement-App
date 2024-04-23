@@ -11,6 +11,8 @@ class VideoThread(QThread):
     # Define a signal for when a specific punch combination is detected
     combination_detected_signal = pyqtSignal(bool)
     new_combination_signal = pyqtSignal(str)
+    update_red_score_signal = pyqtSignal(int)  # Signal to update red score
+    update_blue_score_signal = pyqtSignal(int)
 
     def __init__(self, parent=None, mode='regular'):
         super(VideoThread, self).__init__(parent)
@@ -42,6 +44,8 @@ class VideoThread(QThread):
                     track_punches_flag=lambda: self.competition_mode_active,
                     flash_screen_callback=self.flash_needed.emit,
                     new_combination_callback=self.new_combination_signal.emit,
+                    red_score_callback= self.update_red_score_signal.emit,
+                    blue_score_callback=self.update_blue_score_signal.emit,
                     should_stop=lambda: not self._is_running,
                 )
             else:

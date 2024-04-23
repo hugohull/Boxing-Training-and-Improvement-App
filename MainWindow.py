@@ -229,6 +229,12 @@ class MainWindow(QMainWindow):
         self.combination_label.setStyleSheet("font-size: 28px; font-weight: bold;")
         self.combination_label.hide()
 
+        self.red_score_label = QLabel('Red Score: 0', self)
+        self.red_score_label.setAlignment(Qt.AlignCenter)
+
+        self.blue_score_label = QLabel('Red Score: 0', self)
+        self.blue_score_label.setAlignment(Qt.AlignCenter)
+
         # Inputs
         self.round_input = QLineEdit(self)
         self.work_input = QLineEdit(self)
@@ -308,6 +314,8 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(button_container)
         main_layout.addWidget(self.image_label)
         main_layout.addWidget(self.combination_label)
+        main_layout.addWidget(self.red_score_label)
+        main_layout.addWidget(self.blue_score_label)
 
         # Set the layout to the timer page
         self.timerPage.setLayout(main_layout)
@@ -520,6 +528,12 @@ class MainWindow(QMainWindow):
         self.combination_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
 
+    def update_red_score(self, score):
+        self.red_score_label.setText(f'Red Score: {score}')
+
+    def update_blue_score(self, score):
+        self.blue_score_label.setText(f'Blue Score: {score}')
+
     def start_competition_mode(self):
         self.image_label.enable_line(True, mode="Competition")
         self.last_used_mode = "Competition"
@@ -529,6 +543,8 @@ class MainWindow(QMainWindow):
             self.is_competition_mode_active = True
             self.thread = VideoThread(mode='competition')
             self.thread.new_combination_signal.connect(self.update_combination_display)
+            self.thread.update_red_score_signal.connect(self.update_red_score)
+            self.thread.update_blue_score_signal.connect(self.update_blue_score)
             self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=True)
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.flash_needed.connect(self.flash_color)
