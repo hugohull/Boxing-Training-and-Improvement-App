@@ -238,6 +238,11 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                 if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START, END) and can_detect_again('red'):
                     body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
                     detected_punches.append(f'Left {body_part}')
+                    punch_history['Total Punches'] += 1
+                    punch_history['Total Left'] += 1
+                    punch_history[f'Total {body_part}'] += 1
+                    punch_history[f'Left {body_part}'] += 1
+                    save_punch_history(punch_history)
                     if flash_screen_callback is not None:
                         flash_screen_callback('red')
                     print(detected_punches)
@@ -251,6 +256,11 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                 if x > frameWidth / 2 and intersects_with_line(x, y, w, h, START, END) and can_detect_again('blue'):
                     body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
                     detected_punches.append(f'Right {body_part}')
+                    punch_history['Total Punches'] += 1
+                    punch_history['Total Right'] += 1
+                    punch_history[f'Total {body_part}'] += 1
+                    punch_history[f'Right {body_part}'] += 1
+                    save_punch_history(punch_history)
                     if flash_screen_callback is not None:
                         flash_screen_callback('blue')
                     print(detected_punches)
@@ -276,6 +286,7 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     play_incorrect()
                     detected_punches = []
                     punch_history['Incorrect Combinations'] += 1
+
                     save_punch_history(punch_history)
                     if flash_screen_callback is not None:
                         flash_screen_callback('red')
