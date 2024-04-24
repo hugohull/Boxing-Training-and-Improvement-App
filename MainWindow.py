@@ -52,6 +52,8 @@ class MainWindow(QMainWindow):
         self.right_head_label = QLabel()
         self.right_body_label = QLabel()
         self.completed_rounds_label = QLabel()
+        self.correct_combination_label = QLabel()
+        self.incorrect_combination_label = QLabel()
         self.current_round = 1
         self.rounds = 0
         self.default_round = 12
@@ -153,6 +155,8 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.left_body_label)
         layout.addWidget(self.right_head_label)
         layout.addWidget(self.right_body_label)
+        layout.addWidget(self.correct_combination_label)
+        layout.addWidget(self.incorrect_combination_label)
         layout.addWidget(self.completed_rounds_label)
         # layout.addWidget(history_button)
         layout.setAlignment(Qt.AlignTop)
@@ -598,4 +602,7 @@ class MainWindow(QMainWindow):
         self.left_body_label.setText(f'Left Body: {punch_history["Left Body"]}')
         self.right_head_label.setText(f'Right Head: {punch_history["Right Head"]}')
         self.right_body_label.setText(f'Right Body: {punch_history["Right Body"]}')
+        self.correct_combination_label.setText(f'Correct Combinations: {punch_history["Correct Combinations"]}')
+        self.incorrect_combination_label.setText(f'Incorrect Combinations: {punch_history["Incorrect Combinations"]}')
         self.completed_rounds_label.setText(f'Completed Rounds: {punch_history["Completed Rounds"]}')
+        # Add correct & incorrect combinations label

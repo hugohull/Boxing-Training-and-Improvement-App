@@ -148,9 +148,6 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
                                 flash_screen_callback('blue')
                     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
-        # Add line
-        # cv2.line(img, START, END, COLOUR, THICKNESS)
-
         # Image flipped
         flip_img = cv2.flip(img, 1)
 
@@ -264,6 +261,8 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                 if detected_punches == current_combination:
                     print("Correct combination thrown")
                     play_correct()
+                    punch_history['Correct Combinations'] += 1
+                    save_punch_history(punch_history)
                     current_combination = generate_random_combination()  # Generate a new combination for the next round
                     print(current_combination)  # Print the new combination
                     speak_combination(current_combination)
@@ -276,11 +275,10 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     print("Try Again")
                     play_incorrect()
                     detected_punches = []
+                    punch_history['Incorrect Combinations'] += 1
+                    save_punch_history(punch_history)
                     if flash_screen_callback is not None:
                         flash_screen_callback('red')
-
-        # Add line
-        # cv2.line(img, START, END, COLOUR, THICKNESS)
 
         # Update GUI
         if update_gui_func:
@@ -398,9 +396,6 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                 detected_punches_red = []
                 detected_punches_blue = []
                 new_combination_callback(',  '.join(current_combination))
-
-
-        # cv2.line(img, START_GAME, END_GAME, COLOUR, THICKNESS)
 
         # Update GUI
         if update_gui_func:
