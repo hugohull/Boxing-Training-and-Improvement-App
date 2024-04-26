@@ -143,27 +143,6 @@ class MainWindow(QMainWindow):
 
         self.show()
 
-    # def setupHistoryPage(self):
-    #     layout = QVBoxLayout()
-    #     self.update_history_labels()
-    #     # Labels and buttons for the layout
-    #     layout.addWidget(self.total_punches_label)
-    #     layout.addWidget(self.total_left_label)
-    #     layout.addWidget(self.total_right_label)
-    #     layout.addWidget(self.total_head_label)
-    #     layout.addWidget(self.total_body_label)
-    #     layout.addWidget(self.left_head_label)
-    #     layout.addWidget(self.left_body_label)
-    #     layout.addWidget(self.right_head_label)
-    #     layout.addWidget(self.right_body_label)
-    #     layout.addWidget(self.correct_combination_label)
-    #     layout.addWidget(self.incorrect_combination_label)
-    #     layout.addWidget(self.completed_rounds_label)
-    #     # layout.addWidget(history_button)
-    #     layout.setAlignment(Qt.AlignTop)
-    #
-    #     self.historyPage.setLayout(layout)
-
     def setupHistoryPage(self):
         layout = QVBoxLayout()
         self.update_history_labels()
@@ -172,8 +151,13 @@ class MainWindow(QMainWindow):
         self.graph_widget = pg.PlotWidget()
         self.graph_widget.setBackground(None)  # Set background to transparent
 
+        # Setting up the graph widget for correct vs incorrect
+        self.graph_combination_widget = pg.PlotWidget()
+        self.graph_combination_widget.setBackground(None)  # Set background to transparent
+
         # Adding widgets to layout. Don't touch
         layout.addWidget(self.graph_widget)
+        layout.addWidget(self.graph_combination_widget)
         layout.addWidget(self.total_punches_label)
         layout.addWidget(self.total_left_label)
         layout.addWidget(self.total_right_label)
@@ -193,6 +177,7 @@ class MainWindow(QMainWindow):
     def updateHistoryPage(self):
         self.update_history_labels()
         self.update_all_punch_bar_graph()
+        self.update_combination_bar_graph()
 
     def setupHomePage(self):
         # Set up the home page layout and widgets
@@ -656,3 +641,25 @@ class MainWindow(QMainWindow):
             text = pg.TextItem(f'{label}', color=(200, 200, 200), anchor=(0.5, 0))
             self.graph_widget.addItem(text)
             text.setPos(x, y)
+
+    def update_combination_bar_graph(self):
+        punch_history = load_punch_history()
+        correct = punch_history.get("Correct Combinations", 0)
+        incorrect = punch_history.get("Incorrect Combinations", 0)
+
+        categories = ['Correct', 'Incorrect']
+        values = [correct, incorrect]
+        colors = [QColor('green'), QColor('red')]  # Use QColor objects
+
+        self.graph_combination_widget.clear()
+        for i, val in enumerate(values):
+            bar_graph = pg.BarGraphItem(x=[i], height=[val], width=0.6, brush=colors[i])
+            self.graph_combination_widget.addItem(bar_graph)
+            # Create a text item for each bar
+            text = pg.TextItem(f'{val}', color=(200, 200, 200), anchor=(0.5, 0))  # Black color for visibility
+            self.graph_combination_widget.addItem(text)
+            text.setPos(i, val)  # Position text at the top of each bar
+
+        # Update x-axis to show category names
+        axis = self.graph_combination_widget.getAxis('bottom')
+        axis.setTicks([list(zip(range(len(categories)), categories))])
