@@ -9,6 +9,7 @@ from styles import *
 from utils import play_ding, show_error_message, show_history_updated_message, show_session_complete_message
 from VideoThread import VideoThread
 from HistoryManager import *
+import pyqtgraph as pg
 
 
 class MainWindow(QMainWindow):
@@ -142,10 +143,37 @@ class MainWindow(QMainWindow):
 
         self.show()
 
+    # def setupHistoryPage(self):
+    #     layout = QVBoxLayout()
+    #     self.update_history_labels()
+    #     # Labels and buttons for the layout
+    #     layout.addWidget(self.total_punches_label)
+    #     layout.addWidget(self.total_left_label)
+    #     layout.addWidget(self.total_right_label)
+    #     layout.addWidget(self.total_head_label)
+    #     layout.addWidget(self.total_body_label)
+    #     layout.addWidget(self.left_head_label)
+    #     layout.addWidget(self.left_body_label)
+    #     layout.addWidget(self.right_head_label)
+    #     layout.addWidget(self.right_body_label)
+    #     layout.addWidget(self.correct_combination_label)
+    #     layout.addWidget(self.incorrect_combination_label)
+    #     layout.addWidget(self.completed_rounds_label)
+    #     # layout.addWidget(history_button)
+    #     layout.setAlignment(Qt.AlignTop)
+    #
+    #     self.historyPage.setLayout(layout)
+
     def setupHistoryPage(self):
         layout = QVBoxLayout()
         self.update_history_labels()
-        # Labels and buttons for the layout
+
+        # Setting up the graph widget
+        self.graph_widget = pg.PlotWidget()
+        self.graph_widget.setBackground(None)  # Set background to transparent
+
+        # Adding widgets to layout. Don't touch
+        layout.addWidget(self.graph_widget)
         layout.addWidget(self.total_punches_label)
         layout.addWidget(self.total_left_label)
         layout.addWidget(self.total_right_label)
@@ -158,13 +186,13 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.correct_combination_label)
         layout.addWidget(self.incorrect_combination_label)
         layout.addWidget(self.completed_rounds_label)
-        # layout.addWidget(history_button)
         layout.setAlignment(Qt.AlignTop)
 
         self.historyPage.setLayout(layout)
 
     def updateHistoryPage(self):
         self.update_history_labels()
+        self.update_all_punch_bar_graph()
 
     def setupHomePage(self):
         # Set up the home page layout and widgets
@@ -605,4 +633,26 @@ class MainWindow(QMainWindow):
         self.correct_combination_label.setText(f'Correct Combinations: {punch_history["Correct Combinations"]}')
         self.incorrect_combination_label.setText(f'Incorrect Combinations: {punch_history["Incorrect Combinations"]}')
         self.completed_rounds_label.setText(f'Completed Rounds: {punch_history["Completed Rounds"]}')
-        # Add correct & incorrect combinations label
+
+    def update_all_punch_bar_graph(self):
+        punch_history = load_punch_history()
+        categories = ['Total Left', 'Total Right', 'Total Head', 'Total Body']
+        y_values = [punch_history["Total Left"], punch_history["Total Right"], punch_history["Total Head"],
+                    punch_history["Total Body"]]
+
+        # Clear the previous graph
+        self.graph_widget.clear()
+
+        # Create the bar graph
+        bar_graph = pg.BarGraphItem(x=list(range(len(categories))), height=y_values, width=0.5, brush='r')
+        self.graph_widget.addItem(bar_graph)
+
+        # Update x-axis to show category names instead of numbers
+        axis = self.graph_widget.getAxis('bottom')
+        axis.setTicks([list(zip(range(len(categories)), categories))])
+
+        # Adding text labels on top of each bar
+        for x, y, label in zip(range(len(categories)), y_values, y_values):
+            text = pg.TextItem(f'{label}', color=(200, 200, 200), anchor=(0.5, 0))
+            self.graph_widget.addItem(text)
+            text.setPos(x, y)
