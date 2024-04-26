@@ -149,15 +149,36 @@ class MainWindow(QMainWindow):
 
         # Setting up the graph widget
         self.graph_widget = pg.PlotWidget()
-        self.graph_widget.setBackground(None)  # Set background to transparent
+        self.graph_widget.setBackground(None)
+        self.graph_widget.setMinimumHeight(200)
+        self.graph_widget.setTitle("Number of punches")
+        self.graph_widget.setAlignment(Qt.AlignCenter)
 
         # Setting up the graph widget for correct vs incorrect
         self.graph_combination_widget = pg.PlotWidget()
-        self.graph_combination_widget.setBackground(None)  # Set background to transparent
+        self.graph_combination_widget.setBackground(None)
+        self.graph_combination_widget.setMinimumHeight(200) # Set background to transparent
+        self.graph_combination_widget.setTitle("Number of correct vs incorrect combinations.")
+        self.graph_combination_widget.setAlignment(Qt.AlignCenter)
 
-        # Adding widgets to layout. Don't touch
+        # Create page title
+        title = QLabel('History', self)
+        title.setStyleSheet("color: black; font-size: 30px; font-weight: bold")
+        title.setAlignment(Qt.AlignCenter)
+
+        # Subtitle
+        subtitle = QLabel('Statistics', self)
+        subtitle.setStyleSheet("color: black; font-size: 20px; font-weight: bold")
+        subtitle.setAlignment(Qt.AlignCenter)
+
+        layout.addWidget(title)  # Add the welcome label to the layout
+
+        # Adding graph widgets to layout.
         layout.addWidget(self.graph_widget)
         layout.addWidget(self.graph_combination_widget)
+
+        # Adding other widgets to layout.
+        layout.addWidget(subtitle)
         layout.addWidget(self.total_punches_label)
         layout.addWidget(self.total_left_label)
         layout.addWidget(self.total_right_label)
@@ -621,7 +642,7 @@ class MainWindow(QMainWindow):
 
     def update_all_punch_bar_graph(self):
         punch_history = load_punch_history()
-        categories = ['Total Left', 'Total Right', 'Total Head', 'Total Body']
+        categories = ['Total Left Punches', 'Total Right Punches', 'Total Head Punches', 'Total Body Punches']
         y_values = [punch_history["Total Left"], punch_history["Total Right"], punch_history["Total Head"],
                     punch_history["Total Body"]]
 
@@ -647,7 +668,7 @@ class MainWindow(QMainWindow):
         correct = punch_history.get("Correct Combinations", 0)
         incorrect = punch_history.get("Incorrect Combinations", 0)
 
-        categories = ['Correct', 'Incorrect']
+        categories = ['Correct Combinations', 'Incorrect Combinations']
         values = [correct, incorrect]
         colors = [QColor('green'), QColor('red')]  # Use QColor objects
 
