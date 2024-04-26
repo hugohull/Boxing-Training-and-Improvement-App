@@ -161,6 +161,13 @@ class MainWindow(QMainWindow):
         self.graph_combination_widget.setTitle("Number of correct vs incorrect combinations.")
         self.graph_combination_widget.setAlignment(Qt.AlignCenter)
 
+        # Setting up the graph widget for correct vs incorrect
+        self.graph_specific_punch_widget = pg.PlotWidget()
+        self.graph_specific_punch_widget.setBackground(None)
+        self.graph_specific_punch_widget.setMinimumHeight(200) # Set background to transparent
+        self.graph_specific_punch_widget.setTitle("Number of specific punches")
+        self.graph_specific_punch_widget.setAlignment(Qt.AlignCenter)
+
         # Create page title
         title = QLabel('History', self)
         title.setStyleSheet("color: black; font-size: 30px; font-weight: bold")
@@ -176,6 +183,7 @@ class MainWindow(QMainWindow):
         # Adding graph widgets to layout.
         layout.addWidget(self.graph_widget)
         layout.addWidget(self.graph_combination_widget)
+        layout.addWidget(self.graph_specific_punch_widget)
 
         # Adding other widgets to layout.
         layout.addWidget(subtitle)
@@ -199,6 +207,7 @@ class MainWindow(QMainWindow):
         self.update_history_labels()
         self.update_all_punch_bar_graph()
         self.update_combination_bar_graph()
+        self.update_specific_punch_bar_graph()
 
     def setupHomePage(self):
         # Set up the home page layout and widgets
@@ -684,3 +693,27 @@ class MainWindow(QMainWindow):
         # Update x-axis to show category names
         axis = self.graph_combination_widget.getAxis('bottom')
         axis.setTicks([list(zip(range(len(categories)), categories))])
+
+    def update_specific_punch_bar_graph(self):
+        punch_history = load_punch_history()
+        categories = ['Left Head Punches', 'Left Body Punches', 'Right Head', 'Right Body Punches']
+        y_values = [punch_history.get("Left Head", 0), punch_history.get("Left Body", 0),
+                    punch_history.get("Right Head", 0), punch_history.get("Right Body", 0)]
+
+        # Clear the previous graph
+        self.graph_specific_punch_widget.clear()
+
+        # Create the bar graph
+        bar_graph = pg.BarGraphItem(x=list(range(len(categories))), height=y_values, width=0.5, brush='r')
+        self.graph_specific_punch_widget.addItem(bar_graph)
+
+        # Update x-axis to show category names instead of numbers
+        axis = self.graph_specific_punch_widget.getAxis('bottom')
+        axis.setTicks([list(zip(range(len(categories)), categories))])
+
+        # Adding text labels on top of each bar
+        for x, y, label in zip(range(len(categories)), y_values, y_values):
+            text = pg.TextItem(f'{label}', color=(200, 200, 200), anchor=(0.5, 0))
+            self.graph_specific_punch_widget.addItem(text)
+            text.setPos(x, y)
+
