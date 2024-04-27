@@ -2,14 +2,12 @@ from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout
     QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
 from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont
-
+import pyqtgraph as pg
 from ImageLabel import ImageLabel
-from punch_tracker import run_training_mode
 from styles import *
 from utils import play_ding, show_error_message, show_history_reset_message, show_session_complete_message
 from VideoThread import VideoThread
 from HistoryManager import *
-import pyqtgraph as pg
 
 
 class MainWindow(QMainWindow):
@@ -205,6 +203,7 @@ class MainWindow(QMainWindow):
         # Create Reset History button
         self.reset_history_button = QPushButton('Reset History', self)
         self.reset_history_button.clicked.connect(self.reset_history)  # Connect to the resetHistory method
+        self.reset_history_button.setStyleSheet(red_button_style)
         layout.addWidget(self.reset_history_button)
 
         self.historyPage.setLayout(layout)
