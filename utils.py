@@ -29,10 +29,10 @@ def show_error_message(message):
     error_dialog.setStandardButtons(QMessageBox.Ok)
     error_dialog.exec_()
 
-def show_history_updated_message():
+def show_history_reset_message():
     message_dialog = QMessageBox()
     message_dialog.setIcon(QMessageBox.Information)
-    message_dialog.setText("Punch history has been successfully refreshed.")
+    message_dialog.setText("Punch history has been successfully reset.")
     message_dialog.setWindowTitle("History Updated")
     message_dialog.setStandardButtons(QMessageBox.Ok)
     message_dialog.exec_()

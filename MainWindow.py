@@ -6,7 +6,7 @@ from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont
 from ImageLabel import ImageLabel
 from punch_tracker import run_training_mode
 from styles import *
-from utils import play_ding, show_error_message, show_history_updated_message, show_session_complete_message
+from utils import play_ding, show_error_message, show_history_reset_message, show_session_complete_message
 from VideoThread import VideoThread
 from HistoryManager import *
 import pyqtgraph as pg
@@ -15,6 +15,7 @@ import pyqtgraph as pg
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.graph_widget = None
         self.red_score_label = None
         self.blue_score_label = None
         self.blue_score = 0
@@ -188,18 +189,23 @@ class MainWindow(QMainWindow):
         # Adding other widgets to layout.
         layout.addWidget(subtitle)
         layout.addWidget(self.total_punches_label)
-        layout.addWidget(self.total_left_label)
-        layout.addWidget(self.total_right_label)
-        layout.addWidget(self.total_head_label)
-        layout.addWidget(self.total_body_label)
-        layout.addWidget(self.left_head_label)
-        layout.addWidget(self.left_body_label)
-        layout.addWidget(self.right_head_label)
-        layout.addWidget(self.right_body_label)
-        layout.addWidget(self.correct_combination_label)
-        layout.addWidget(self.incorrect_combination_label)
+        # layout.addWidget(self.total_left_label)
+        # layout.addWidget(self.total_right_label)
+        # layout.addWidget(self.total_head_label)
+        # layout.addWidget(self.total_body_label)
+        # layout.addWidget(self.left_head_label)
+        # layout.addWidget(self.left_body_label)
+        # layout.addWidget(self.right_head_label)
+        # layout.addWidget(self.right_body_label)
+        # layout.addWidget(self.correct_combination_label)
+        # layout.addWidget(self.incorrect_combination_label)
         layout.addWidget(self.completed_rounds_label)
         layout.setAlignment(Qt.AlignTop)
+
+        # Create Reset History button
+        self.reset_history_button = QPushButton('Reset History', self)
+        self.reset_history_button.clicked.connect(self.reset_history)  # Connect to the resetHistory method
+        layout.addWidget(self.reset_history_button)
 
         self.historyPage.setLayout(layout)
 
@@ -637,17 +643,26 @@ class MainWindow(QMainWindow):
     def update_history_labels(self):
         punch_history = load_punch_history()
         self.total_punches_label.setText(f'Total Punches: {punch_history["Total Punches"]}')
-        self.total_left_label.setText(f'Total Left: {punch_history["Total Left"]}')
-        self.total_right_label.setText(f'Total Right: {punch_history["Total Right"]}')
-        self.total_head_label.setText(f'Total Head: {punch_history["Total Head"]}')
-        self.total_body_label.setText(f'Total Body: {punch_history["Total Body"]}')
-        self.left_head_label.setText(f'Left Head: {punch_history["Left Head"]}')
-        self.left_body_label.setText(f'Left Body: {punch_history["Left Body"]}')
-        self.right_head_label.setText(f'Right Head: {punch_history["Right Head"]}')
-        self.right_body_label.setText(f'Right Body: {punch_history["Right Body"]}')
-        self.correct_combination_label.setText(f'Correct Combinations: {punch_history["Correct Combinations"]}')
-        self.incorrect_combination_label.setText(f'Incorrect Combinations: {punch_history["Incorrect Combinations"]}')
+        # self.total_left_label.setText(f'Total Left: {punch_history["Total Left"]}')
+        # self.total_right_label.setText(f'Total Right: {punch_history["Total Right"]}')
+        # self.total_head_label.setText(f'Total Head: {punch_history["Total Head"]}')
+        # self.total_body_label.setText(f'Total Body: {punch_history["Total Body"]}')
+        # self.left_head_label.setText(f'Left Head: {punch_history["Left Head"]}')
+        # self.left_body_label.setText(f'Left Body: {punch_history["Left Body"]}')
+        # self.right_head_label.setText(f'Right Head: {punch_history["Right Head"]}')
+        # self.right_body_label.setText(f'Right Body: {punch_history["Right Body"]}')
+        # self.correct_combination_label.setText(f'Correct Combinations: {punch_history["Correct Combinations"]}')
+        # self.incorrect_combination_label.setText(f'Incorrect Combinations: {punch_history["Incorrect Combinations"]}')
         self.completed_rounds_label.setText(f'Completed Rounds: {punch_history["Completed Rounds"]}')
+
+    def reset_history(self):
+        reset_punch_history()
+        self.update_history_labels()
+        self.update_combination_bar_graph()
+        self.update_specific_punch_bar_graph()
+        self.update_all_punch_bar_graph()
+        self.update_history_labels()
+        show_history_reset_message()
 
     def update_all_punch_bar_graph(self):
         punch_history = load_punch_history()

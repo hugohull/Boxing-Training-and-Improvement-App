@@ -32,5 +32,25 @@ def save_punch_history(history):
         json.dump(history, file)
 
 
+def reset_punch_history():
+    default_history = {
+        'Total Punches': 0,
+        'Total Left': 0,
+        'Total Right': 0,
+        'Total Head': 0,
+        'Total Body': 0,
+        'Left Head': 0,
+        'Left Body': 0,
+        'Right Head': 0,
+        'Right Body': 0,
+        'Completed Rounds': 0,
+        'Correct Combinations': 0,
+        'Incorrect Combinations': 0
+    }
+
+    with open('history/punch_history.json', 'w') as file:
+        json.dump(default_history, file)
+
+
 def print_punch_history():
     pprint(load_punch_history(), sort_dicts=False)
