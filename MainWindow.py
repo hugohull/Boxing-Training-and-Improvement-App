@@ -170,12 +170,12 @@ class MainWindow(QMainWindow):
 
         # Create page title
         title = QLabel('History', self)
-        title.setStyleSheet("color: black; font-size: 30px; font-weight: bold")
+        title.setStyleSheet("font-size: 30px; font-weight: bold")
         title.setAlignment(Qt.AlignCenter)
 
         # Subtitle
         subtitle = QLabel('Statistics', self)
-        subtitle.setStyleSheet("color: black; font-size: 20px; font-weight: bold")
+        subtitle.setStyleSheet("font-size: 20px; font-weight: bold")
         subtitle.setAlignment(Qt.AlignCenter)
 
         layout.addWidget(title)  # Add the welcome label to the layout
