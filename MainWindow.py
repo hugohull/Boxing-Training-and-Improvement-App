@@ -172,31 +172,26 @@ class MainWindow(QMainWindow):
         title.setStyleSheet("font-size: 30px; font-weight: bold")
         title.setAlignment(Qt.AlignCenter)
 
+        # Statistics subtitle
+        statistics_subtitle = QLabel('Statistics:', self)
+        statistics_subtitle.setStyleSheet("font-size: 20px; font-weight: bold")
+        statistics_subtitle.setAlignment(Qt.AlignLeft)
+
         # Subtitle
-        subtitle = QLabel('Statistics', self)
-        subtitle.setStyleSheet("font-size: 20px; font-weight: bold")
-        subtitle.setAlignment(Qt.AlignCenter)
+        graphs_subtitle = QLabel('Graphs:', self)
+        graphs_subtitle.setStyleSheet("font-size: 20px; font-weight: bold")
+        graphs_subtitle.setAlignment(Qt.AlignLeft)
 
         layout.addWidget(title)  # Add the welcome label to the layout
-
+        layout.addWidget(graphs_subtitle)
         # Adding graph widgets to layout.
         layout.addWidget(self.graph_widget)
         layout.addWidget(self.graph_combination_widget)
         layout.addWidget(self.graph_specific_punch_widget)
 
         # Adding other widgets to layout.
-        layout.addWidget(subtitle)
+        layout.addWidget(statistics_subtitle)
         layout.addWidget(self.total_punches_label)
-        # layout.addWidget(self.total_left_label)
-        # layout.addWidget(self.total_right_label)
-        # layout.addWidget(self.total_head_label)
-        # layout.addWidget(self.total_body_label)
-        # layout.addWidget(self.left_head_label)
-        # layout.addWidget(self.left_body_label)
-        # layout.addWidget(self.right_head_label)
-        # layout.addWidget(self.right_body_label)
-        # layout.addWidget(self.correct_combination_label)
-        # layout.addWidget(self.incorrect_combination_label)
         layout.addWidget(self.completed_rounds_label)
         layout.setAlignment(Qt.AlignTop)
 
