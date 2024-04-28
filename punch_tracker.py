@@ -67,8 +67,7 @@ def intersects_with_line(x, y, w, h, line_start, line_end):
 
 
 def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,
-                      should_stop=lambda: False, lock=None):
-    load_punch_history()
+                      should_stop=lambda: False):
 
     # Main program
     while not should_stop():
@@ -90,6 +89,8 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
         # Create masks for red and blue
         mask_red = cv2.inRange(hsv, lower_red1, upper_red1)
         mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
+
+        punch_history = get_punch_history()
 
         # Find contours and draw them for red
         contours_red, _ = cv2.findContours(mask_red, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -177,7 +178,6 @@ def speak_combination(combination):
 
 def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,
                       new_combination_callback=None, should_stop=lambda: False):
-    load_punch_history()
 
     def generate_random_combination():
         punches = ['Left Head', 'Left Body', 'Right Head', 'Right Body']
@@ -210,6 +210,8 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
         # Create masks for red and blue
         mask_red = cv2.inRange(hsv, lower_red1, upper_red1)
         mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
+
+        punch_history = get_punch_history()
 
         # Find contours and draw them for red
         contours_red, _ = cv2.findContours(mask_red, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -299,7 +301,6 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
 
 def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, new_combination_callback=None,
                          red_score_callback=None, blue_score_callback=None, should_stop=lambda: False):
-    load_punch_history()
 
     def generate_random_combination():
         punches = ['Body', 'Head']

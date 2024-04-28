@@ -454,7 +454,7 @@ class MainWindow(QMainWindow):
 
     def next_round(self):
         self.rounds -= 1
-        punch_history = load_punch_history()
+        punch_history = get_punch_history()
         punch_history['Completed Rounds'] += 1
         save_punch_history(punch_history)
         if self.rounds > 0:
@@ -640,7 +640,7 @@ class MainWindow(QMainWindow):
         print("Label updated to:", combination)
 
     def update_history_labels(self):
-        punch_history = load_punch_history()
+        punch_history = get_punch_history()
         self.total_punches_label.setText(f'Total Punches: {punch_history["Total Punches"]}')
         # self.total_left_label.setText(f'Total Left: {punch_history["Total Left"]}')
         # self.total_right_label.setText(f'Total Right: {punch_history["Total Right"]}')
@@ -664,7 +664,7 @@ class MainWindow(QMainWindow):
         show_history_reset_message()
 
     def update_all_punch_bar_graph(self):
-        punch_history = load_punch_history()
+        punch_history = get_punch_history()
         categories = ['Total Left Punches', 'Total Right Punches', 'Total Head Punches', 'Total Body Punches']
         y_values = [punch_history["Total Left"], punch_history["Total Right"], punch_history["Total Head"],
                     punch_history["Total Body"]]
@@ -691,7 +691,7 @@ class MainWindow(QMainWindow):
             text.setPos(x, y)
 
     def update_combination_bar_graph(self):
-        punch_history = load_punch_history()
+        punch_history = get_punch_history()
         correct = punch_history.get("Correct Combinations", 0)
         incorrect = punch_history.get("Incorrect Combinations", 0)
 
@@ -713,7 +713,7 @@ class MainWindow(QMainWindow):
         axis.setTicks([list(zip(range(len(categories)), categories))])
 
     def update_specific_punch_bar_graph(self):
-        punch_history = load_punch_history()
+        punch_history = get_punch_history()
         categories = ['Left Head Punches', 'Left Body Punches', 'Right Head Punches', 'Right Body Punches']
         y_values = [punch_history.get("Left Head", 0), punch_history.get("Left Body", 0),
                     punch_history.get("Right Head", 0), punch_history.get("Right Body", 0)]

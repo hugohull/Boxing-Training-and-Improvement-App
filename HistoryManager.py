@@ -24,7 +24,8 @@ def load_punch_history():
         }
 
 
-punch_history = load_punch_history()
+def get_punch_history():
+    return load_punch_history()
 
 
 def save_punch_history(history):
@@ -50,6 +51,8 @@ def reset_punch_history():
 
     with open('history/punch_history.json', 'w') as file:
         json.dump(default_history, file)
+
+    load_punch_history()
 
 
 def print_punch_history():
