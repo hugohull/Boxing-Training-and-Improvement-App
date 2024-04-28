@@ -669,12 +669,16 @@ class MainWindow(QMainWindow):
         y_values = [punch_history["Total Left"], punch_history["Total Right"], punch_history["Total Head"],
                     punch_history["Total Body"]]
 
+        # Define colors for each category
+        brushes = [(180, 0, 0, 255), (15, 82, 152, 255), (128, 0, 128, 255), (128, 0, 128, 255)]  # RGBA values
+
         # Clear the previous graph
         self.graph_widget.clear()
 
         # Create the bar graph
-        bar_graph = pg.BarGraphItem(x=list(range(len(categories))), height=y_values, width=0.5, brush='r')
-        self.graph_widget.addItem(bar_graph)
+        for i, (category, y, brush) in enumerate(zip(categories, y_values, brushes)):
+            bar_graph = pg.BarGraphItem(x=[i], height=[y], width=0.5, brush=brush)
+            self.graph_widget.addItem(bar_graph)
 
         # Update x-axis to show category names instead of numbers
         axis = self.graph_widget.getAxis('bottom')
@@ -693,7 +697,7 @@ class MainWindow(QMainWindow):
 
         categories = ['Correct Combinations', 'Incorrect Combinations']
         values = [correct, incorrect]
-        colors = [QColor('green'), QColor('red')]  # Use QColor objects
+        colors = [QColor('green'), (180, 0, 0, 255)]  # Use QColor objects
 
         self.graph_combination_widget.clear()
         for i, val in enumerate(values):
@@ -710,16 +714,20 @@ class MainWindow(QMainWindow):
 
     def update_specific_punch_bar_graph(self):
         punch_history = load_punch_history()
-        categories = ['Left Head Punches', 'Left Body Punches', 'Right Head', 'Right Body Punches']
+        categories = ['Left Head Punches', 'Left Body Punches', 'Right Head Punches', 'Right Body Punches']
         y_values = [punch_history.get("Left Head", 0), punch_history.get("Left Body", 0),
                     punch_history.get("Right Head", 0), punch_history.get("Right Body", 0)]
+
+        # Define colors for each category
+        brushes = [(180, 0, 0, 255), (180, 0, 0, 255), (15, 82, 152, 255), (15, 82, 152, 255)]  # Red for left punches, Blue for right punches
 
         # Clear the previous graph
         self.graph_specific_punch_widget.clear()
 
         # Create the bar graph
-        bar_graph = pg.BarGraphItem(x=list(range(len(categories))), height=y_values, width=0.5, brush='r')
-        self.graph_specific_punch_widget.addItem(bar_graph)
+        for i, (category, y, brush) in enumerate(zip(categories, y_values, brushes)):
+            bar_graph = pg.BarGraphItem(x=[i], height=[y], width=0.5, brush=brush)
+            self.graph_specific_punch_widget.addItem(bar_graph)
 
         # Update x-axis to show category names instead of numbers
         axis = self.graph_specific_punch_widget.getAxis('bottom')
@@ -730,4 +738,5 @@ class MainWindow(QMainWindow):
             text = pg.TextItem(f'{label}', color=(200, 200, 200), anchor=(0.5, 0))
             self.graph_specific_punch_widget.addItem(text)
             text.setPos(x, y)
+
 
