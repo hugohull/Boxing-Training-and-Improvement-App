@@ -390,15 +390,17 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                     print("Red scores a point!")
                     red_score_callback(red_score)
                     flash_screen_callback('red')
-
+                    play_correct()
                 elif detected_punches_blue == current_combination:
                     blue_score += 1
                     print("Blue scores a point!")
                     blue_score_callback(blue_score)
                     flash_screen_callback('blue')
+                    play_correct()
                 else:
                     print("No valid combination thrown by either player. Try Again.")
                     flash_screen_callback('red')  # Red flash to indicate error
+                    play_incorrect()
 
                 # Generate a new combination and reset detected punches
                 current_combination = generate_random_combination()
