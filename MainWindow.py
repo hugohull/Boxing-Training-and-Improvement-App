@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, \
-    QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp
+    QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp, QMessageBox
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
 from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont
 import pyqtgraph as pg
@@ -637,26 +637,20 @@ class MainWindow(QMainWindow):
     def update_history_labels(self):
         punch_history = get_punch_history()
         self.total_punches_label.setText(f'Total Punches: {punch_history["Total Punches"]}')
-        # self.total_left_label.setText(f'Total Left: {punch_history["Total Left"]}')
-        # self.total_right_label.setText(f'Total Right: {punch_history["Total Right"]}')
-        # self.total_head_label.setText(f'Total Head: {punch_history["Total Head"]}')
-        # self.total_body_label.setText(f'Total Body: {punch_history["Total Body"]}')
-        # self.left_head_label.setText(f'Left Head: {punch_history["Left Head"]}')
-        # self.left_body_label.setText(f'Left Body: {punch_history["Left Body"]}')
-        # self.right_head_label.setText(f'Right Head: {punch_history["Right Head"]}')
-        # self.right_body_label.setText(f'Right Body: {punch_history["Right Body"]}')
-        # self.correct_combination_label.setText(f'Correct Combinations: {punch_history["Correct Combinations"]}')
-        # self.incorrect_combination_label.setText(f'Incorrect Combinations: {punch_history["Incorrect Combinations"]}')
         self.completed_rounds_label.setText(f'Completed Rounds: {punch_history["Completed Rounds"]}')
 
     def reset_history(self):
-        reset_punch_history()
-        self.update_history_labels()
-        self.update_combination_bar_graph()
-        self.update_specific_punch_bar_graph()
-        self.update_all_punch_bar_graph()
-        self.update_history_labels()
-        show_history_reset_message()
+        reply = QMessageBox.question(self, 'Confirm Reset',
+                                     "Are you sure you want to erase your history?",
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            reset_punch_history()
+            self.update_history_labels()
+            self.update_combination_bar_graph()
+            self.update_specific_punch_bar_graph()
+            self.update_all_punch_bar_graph()
+            self.update_history_labels()
+            show_history_reset_message()
 
     def update_all_punch_bar_graph(self):
         punch_history = get_punch_history()
@@ -733,5 +727,3 @@ class MainWindow(QMainWindow):
             text = pg.TextItem(f'{label}', color=(200, 200, 200), anchor=(0.5, 0))
             self.graph_specific_punch_widget.addItem(text)
             text.setPos(x, y)
-
-
