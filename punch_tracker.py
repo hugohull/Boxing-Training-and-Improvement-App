@@ -336,6 +336,8 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
         mask_red = cv2.inRange(hsv, lower_red1, upper_red1)
         mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
 
+        punch_history = get_punch_history()
+
         # Find contours and draw them for red
         contours_red, _ = cv2.findContours(mask_red, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours_red:
@@ -364,6 +366,9 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                         'red'):
                     body_part = "Head" if y + h / 2 < frameHeight / 2 else "Body"
                     detected_punches_red.append(f'{body_part}')
+                    punch_history['Total Punches'] += 1
+                    punch_history[f'Total {body_part}'] += 1
+                    save_punch_history(punch_history)
                     if flash_screen_callback is not None:
                         flash_screen_callback('red')
                     print(f"Red: {detected_punches_red}")
@@ -388,6 +393,8 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                 if detected_punches_red == current_combination:
                     red_score += 1
                     print("Red scores a point!")
+                    punch_history["Correct Combinations"] += 1
+                    save_punch_history(punch_history)
                     red_score_callback(red_score)
                     flash_screen_callback('red')
                     play_correct()
@@ -402,7 +409,9 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                     print("Red threw an incorrect combination. Try Again.")
                     flash_screen_callback('red')  # Red flash to indicate error
                     play_incorrect()
-                    detected_punches_red = []  # Reset red's punches after evaluation
+                    detected_punches_red = []
+                    punch_history["Incorrect Combinations"] += 1
+                    save_punch_history(punch_history)
 
             # Check if Blue has thrown enough punches for a combination
             if len(detected_punches_blue) >= len(current_combination):
