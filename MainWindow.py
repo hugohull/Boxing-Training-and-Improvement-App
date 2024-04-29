@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, \
     QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp, QMessageBox
-from PyQt5.QtCore import pyqtSlot, Qt, QTimer
-from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont
+from PyQt5.QtCore import pyqtSlot, Qt, QTimer, QUrl
+from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont, QDesktopServices
 import pyqtgraph as pg
 from ImageLabel import ImageLabel
 from styles import *
-from utils import play_ding, show_error_message, show_history_reset_message, show_session_complete_message
+from utils import play_ding, show_error_message, show_history_reset_message, show_session_complete_message, get_rand_url
 from VideoThread import VideoThread
 from HistoryManager import *
 
@@ -216,27 +216,47 @@ class MainWindow(QMainWindow):
 
     def setupHomePage(self):
         # Set up the home page layout and widgets
-        layout = QVBoxLayout()
+        self.homePage = QWidget()  # Assuming self.homePage is the container widget for the layout
+        layout = QVBoxLayout(self.homePage)
+
+        # Set stripes on each side of the widget that holds the layout
+        self.homePage.setStyleSheet("""
+            QWidget {
+                border-left: 10px solid red;  /* Red stripe on the left, 5 pixels wide */
+                border-right: 10px solid blue;  /* Blue stripe on the right, 5 pixels wide */
+            }
+        """)
 
         # Create welcome label
-        welcome_label = QLabel('Welcome to BoxingApp', self)
+        welcome_label = QLabel('Welcome to BoxingApp', self.homePage)
         welcome_label.setAlignment(Qt.AlignCenter)
-        # Set font using QFont
-        font = QFont()
-        font.setPointSize(30)  # Set font size
-        font.setBold(True)  # Set font weight to bold
-        welcome_label.setFont(font)  # Apply the font to the welcome label
-        layout.addWidget(welcome_label)  # Add the welcome label to the layout
+        welcome_label.setStyleSheet("QLabel { font-size: 30pt; font-weight: bold; }")
+        layout.addWidget(welcome_label)
+
+        # Subtitle
+        subtitle_label = QLabel('The home of modern boxing training and improvement', self.homePage)
+        subtitle_label.setAlignment(Qt.AlignCenter)
+        subtitle_label.setStyleSheet("QLabel { font-size: 20pt; font-weight: bold; }")
+        layout.addWidget(subtitle_label)
 
         # Create image label
-        self.image_label = QLabel(self)
+        self.image_label = QLabel(self.homePage)
         pixmap = QPixmap('Images/logo.png')
         pixmap = pixmap.scaled(450, 500, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.image_label.setPixmap(pixmap)
         self.image_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.image_label)
 
+        self.openButton = QPushButton("Click for motivation.", self)
+        self.openButton.clicked.connect(self.openRandomVideo)
+        self.openButton.setStyleSheet(red_button_style)
+        layout.addWidget(self.openButton)
+
         self.homePage.setLayout(layout)
+
+    def openRandomVideo(self):
+        url = get_rand_url()
+        QDesktopServices.openUrl(QUrl(url))
 
     def setupTimerPage(self):
         # Layouts
