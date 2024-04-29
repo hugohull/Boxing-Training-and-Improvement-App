@@ -150,21 +150,21 @@ class MainWindow(QMainWindow):
         self.graph_widget = pg.PlotWidget()
         self.graph_widget.setBackground(None)
         self.graph_widget.setMinimumHeight(200)
-        self.graph_widget.setTitle("Number of punches")
+        self.graph_widget.setTitle("Distribution of Total Punches.")
         self.graph_widget.setAlignment(Qt.AlignCenter)
 
         # Setting up the graph widget for correct vs incorrect
         self.graph_combination_widget = pg.PlotWidget()
         self.graph_combination_widget.setBackground(None)
         self.graph_combination_widget.setMinimumHeight(200) # Set background to transparent
-        self.graph_combination_widget.setTitle("Number of correct vs incorrect combinations.")
+        self.graph_combination_widget.setTitle("Number of Correct vs. Incorrect Combinations Thrown.")
         self.graph_combination_widget.setAlignment(Qt.AlignCenter)
 
         # Setting up the graph widget for correct vs incorrect
         self.graph_specific_punch_widget = pg.PlotWidget()
         self.graph_specific_punch_widget.setBackground(None)
         self.graph_specific_punch_widget.setMinimumHeight(200) # Set background to transparent
-        self.graph_specific_punch_widget.setTitle("Number of specific punches")
+        self.graph_specific_punch_widget.setTitle("Distribution of specific punches.")
         self.graph_specific_punch_widget.setAlignment(Qt.AlignCenter)
 
         # Create page title
@@ -199,7 +199,12 @@ class MainWindow(QMainWindow):
         self.reset_history_button = QPushButton('Reset History', self)
         self.reset_history_button.clicked.connect(self.reset_history)  # Connect to the resetHistory method
         self.reset_history_button.setStyleSheet(red_button_style)
-        layout.addWidget(self.reset_history_button)
+
+        button_layout = QHBoxLayout()
+        button_layout.addStretch(1)
+        button_layout.addWidget(self.reset_history_button)
+        button_layout.addStretch(1)
+        layout.addLayout(button_layout)
 
         self.historyPage.setLayout(layout)
 
