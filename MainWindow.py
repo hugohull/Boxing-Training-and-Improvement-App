@@ -1,7 +1,8 @@
+from PyQt5.QtChart import QChartView, QPieSeries, QChart
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, \
     QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp, QMessageBox, QScrollArea
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer, QUrl
-from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont, QDesktopServices
+from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont, QDesktopServices, QPainter, QBrush
 import pyqtgraph as pg
 from ImageLabel import ImageLabel
 from styles import *
@@ -156,15 +157,14 @@ class MainWindow(QMainWindow):
         # Setting up the graph widget for correct vs incorrect
         self.graph_combination_widget = pg.PlotWidget()
         self.graph_combination_widget.setBackground(None)
-        self.graph_combination_widget.setMinimumHeight(200) # Set background to transparent
+        self.graph_combination_widget.setMinimumHeight(200)  # Set background to transparent
         self.graph_combination_widget.setTitle("Number of Correct vs. Incorrect Combinations Thrown.")
         self.graph_combination_widget.setAlignment(Qt.AlignCenter)
 
         # Setting up the graph widget for correct vs incorrect
-        self.graph_specific_punch_widget = pg.PlotWidget()
-        self.graph_specific_punch_widget.setBackground(None)
-        self.graph_specific_punch_widget.setMinimumHeight(200) # Set background to transparent
-        self.graph_specific_punch_widget.setTitle("Distribution of specific punches.")
+        self.graph_specific_punch_chart = QChart()
+        self.graph_specific_punch_widget = QChartView(self.graph_specific_punch_chart)
+        self.graph_specific_punch_widget.setMinimumHeight(300)
         self.graph_specific_punch_widget.setAlignment(Qt.AlignCenter)
 
         # Setting up the graph widget for games statistics
@@ -175,7 +175,8 @@ class MainWindow(QMainWindow):
         self.graph_competition_widget.setAlignment(Qt.AlignCenter)
 
         # Handle wheel events by forwarding them to the scroll area
-        for widget in [self.graph_widget, self.graph_combination_widget, self.graph_specific_punch_widget, self.graph_competition_widget]:
+        for widget in [self.graph_widget, self.graph_combination_widget, self.graph_specific_punch_widget,
+                       self.graph_competition_widget]:
             widget.wheelEvent = lambda event, w=widget: scroll_area.wheelEvent(event)
 
         # Create page title
@@ -205,8 +206,8 @@ class MainWindow(QMainWindow):
         scroll_area_layout = QVBoxLayout(scroll_area_widget)
 
         # Add your graph widgets to the scroll area layout
-        scroll_area_layout.addWidget(self.graph_widget)
         scroll_area_layout.addWidget(self.graph_specific_punch_widget)
+        scroll_area_layout.addWidget(self.graph_widget)
         scroll_area_layout.addWidget(self.graph_combination_widget)
         scroll_area_layout.addWidget(self.graph_competition_widget)
         scroll_area_widget.setLayout(scroll_area_layout)
@@ -239,7 +240,7 @@ class MainWindow(QMainWindow):
         self.update_history_labels()
         self.update_all_punch_bar_graph()
         self.update_combination_bar_graph()
-        self.update_specific_punch_bar_graph()
+        self.update_specific_punch_pie_chart()
         self.update_games_bar_graph()
 
     def setupHomePage(self):
@@ -727,7 +728,7 @@ class MainWindow(QMainWindow):
             reset_punch_history()
             self.update_history_labels()
             self.update_combination_bar_graph()
-            self.update_specific_punch_bar_graph()
+            self.update_specific_punch_pie_chart()
             self.update_all_punch_bar_graph()
             self.update_games_bar_graph()
             self.update_history_labels()
@@ -782,37 +783,41 @@ class MainWindow(QMainWindow):
         axis = self.graph_combination_widget.getAxis('bottom')
         axis.setTicks([list(zip(range(len(categories)), categories))])
 
-    def update_specific_punch_bar_graph(self):
+    def update_specific_punch_pie_chart(self):
         punch_history = get_punch_history()
         categories = ['Left Head Punches', 'Left Body Punches', 'Right Head Punches', 'Right Body Punches']
-        y_values = [punch_history.get("Left Head", 0), punch_history.get("Left Body", 0),
-                    punch_history.get("Right Head", 0), punch_history.get("Right Body", 0)]
+        values = [punch_history.get("Left Head", 0), punch_history.get("Left Body", 0),
+                  punch_history.get("Right Head", 0), punch_history.get("Right Body", 0)]
 
-        # Define colors for each category
-        brushes = [(180, 0, 0, 255), (180, 0, 0, 255), (15, 82, 152, 255), (15, 82, 152, 255)]  # Red for left punches, Blue for right punches
+        # Clear the previous chart
+        self.graph_specific_punch_chart.removeAllSeries()
 
-        # Clear the previous graph
-        self.graph_specific_punch_widget.clear()
+        # Colors corresponding to each punch type
+        colors = [QColor(180, 0, 0, 255), QColor(128, 0, 128, 255), QColor(15, 82, 152, 255), QColor(0, 150, 0, 255)]
 
-        # Create the bar graph
-        for i, (category, y, brush) in enumerate(zip(categories, y_values, brushes)):
-            bar_graph = pg.BarGraphItem(x=[i], height=[y], width=0.5, brush=brush)
-            self.graph_specific_punch_widget.addItem(bar_graph)
+        # Create pie series
+        series = QPieSeries()
+        series.setPieSize(1)
+        for category, value, color in zip(categories, values, colors):
+            slice = series.append(category + f" ({value})", value)
+            slice.setBrush(color)
 
-        # Update x-axis to show category names instead of numbers
-        axis = self.graph_specific_punch_widget.getAxis('bottom')
-        axis.setTicks([list(zip(range(len(categories)), categories))])
+        # Add the series to the chart
+        self.graph_specific_punch_chart.addSeries(series)
+        self.graph_specific_punch_chart.setTitleBrush(QBrush(QColor(150, 150, 150)))
+        self.graph_specific_punch_chart.setTitle("Distribution of Specific Punches.")
 
-        # Adding text labels on top of each bar
-        for x, y, label in zip(range(len(categories)), y_values, y_values):
-            text = pg.TextItem(f'{label}', color=(200, 200, 200), anchor=(0.5, 0))
-            self.graph_specific_punch_widget.addItem(text)
-            text.setPos(x, y)
+        self.graph_specific_punch_chart.setBackgroundBrush(QBrush(QColor(0, 0, 0, 0)))
+
+        self.graph_specific_punch_chart.legend().setVisible(True)
+        self.graph_specific_punch_chart.legend().setLabelColor(QColor(150, 150, 150))
+        self.graph_specific_punch_chart.legend().setAlignment(Qt.AlignBottom)
 
     def update_games_bar_graph(self):
         punch_history = get_punch_history()
         categories = ['Games Won', 'Games Lost', 'Games Drawn']
-        y_values = [punch_history.get("Games Won", 0), punch_history.get("Games Lost", 0), punch_history.get("Games Drawn", 0)]
+        y_values = [punch_history.get("Games Won", 0), punch_history.get("Games Lost", 0),
+                    punch_history.get("Games Drawn", 0)]
 
         # Define colors for each category using RGBA values
         brushes = [(180, 0, 0, 255), (15, 82, 152, 255), (128, 0, 128, 255)]  # Red, Blue, Purple
@@ -831,4 +836,3 @@ class MainWindow(QMainWindow):
         # Update x-axis to show category names instead of numbers
         axis = self.graph_competition_widget.getAxis('bottom')
         axis.setTicks([list(zip(range(len(categories)), categories))])
-
