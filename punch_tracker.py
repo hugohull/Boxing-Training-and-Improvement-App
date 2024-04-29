@@ -382,34 +382,48 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                         flash_screen_callback('blue')
                     print(f"Blue: {detected_punches_blue}")
 
-        # Check if red or blue completed the combination
         if track_punches_flag():
-            if len(detected_punches_red) >= len(current_combination) or len(detected_punches_blue) >= len(
-                    current_combination):
+            # Check if Red has thrown enough punches for a combination
+            if len(detected_punches_red) >= len(current_combination):
                 if detected_punches_red == current_combination:
                     red_score += 1
                     print("Red scores a point!")
                     red_score_callback(red_score)
                     flash_screen_callback('red')
                     play_correct()
-                elif detected_punches_blue == current_combination:
+                    # Generate a new combination and reset detected punches
+                    current_combination = generate_random_combination()
+                    print(f"New Target Combination: {current_combination}")
+                    speak_combination(current_combination)
+                    detected_punches_red = []
+                    detected_punches_blue = []
+                    new_combination_callback(',  '.join(current_combination))
+                else:
+                    print("Red threw an incorrect combination. Try Again.")
+                    flash_screen_callback('red')  # Red flash to indicate error
+                    play_incorrect()
+                    detected_punches_red = []  # Reset red's punches after evaluation
+
+            # Check if Blue has thrown enough punches for a combination
+            if len(detected_punches_blue) >= len(current_combination):
+                if detected_punches_blue == current_combination:
                     blue_score += 1
                     print("Blue scores a point!")
                     blue_score_callback(blue_score)
                     flash_screen_callback('blue')
                     play_correct()
+                    # Generate a new combination and reset detected punches
+                    current_combination = generate_random_combination()
+                    print(f"New Target Combination: {current_combination}")
+                    speak_combination(current_combination)
+                    detected_punches_red = []
+                    detected_punches_blue = []
+                    new_combination_callback(',  '.join(current_combination))
                 else:
-                    print("No valid combination thrown by either player. Try Again.")
-                    flash_screen_callback('red')  # Red flash to indicate error
+                    print("Blue threw an incorrect combination. Try Again.")
+                    flash_screen_callback('blue')  # Blue flash to indicate error
                     play_incorrect()
-
-                # Generate a new combination and reset detected punches
-                current_combination = generate_random_combination()
-                print(f"New Target Combination: {current_combination}")
-                speak_combination(current_combination)
-                detected_punches_red = []
-                detected_punches_blue = []
-                new_combination_callback(',  '.join(current_combination))
+                    detected_punches_blue = []  # Reset blue's punches after evaluation
 
         # Update GUI
         if update_gui_func:

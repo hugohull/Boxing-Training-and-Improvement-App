@@ -167,8 +167,15 @@ class MainWindow(QMainWindow):
         self.graph_specific_punch_widget.setTitle("Distribution of specific punches.")
         self.graph_specific_punch_widget.setAlignment(Qt.AlignCenter)
 
+        # Setting up the graph widget for games statistics
+        self.graph_competition_widget = pg.PlotWidget()
+        self.graph_competition_widget.setBackground(None)
+        self.graph_competition_widget.setMinimumHeight(200)
+        self.graph_competition_widget.setTitle("Games Won vs Lost vs Drawn")
+        self.graph_competition_widget.setAlignment(Qt.AlignCenter)
+
         # Handle wheel events by forwarding them to the scroll area
-        for widget in [self.graph_widget, self.graph_combination_widget, self.graph_specific_punch_widget]:
+        for widget in [self.graph_widget, self.graph_combination_widget, self.graph_specific_punch_widget, self.graph_competition_widget]:
             widget.wheelEvent = lambda event, w=widget: scroll_area.wheelEvent(event)
 
         # Create page title
@@ -201,6 +208,7 @@ class MainWindow(QMainWindow):
         scroll_area_layout.addWidget(self.graph_widget)
         scroll_area_layout.addWidget(self.graph_combination_widget)
         scroll_area_layout.addWidget(self.graph_specific_punch_widget)
+        scroll_area_layout.addWidget(self.graph_competition_widget)
         scroll_area_widget.setLayout(scroll_area_layout)
         scroll_area.setWidget(scroll_area_widget)
         scroll_area.setWidgetResizable(True)
@@ -232,6 +240,7 @@ class MainWindow(QMainWindow):
         self.update_all_punch_bar_graph()
         self.update_combination_bar_graph()
         self.update_specific_punch_bar_graph()
+        self.update_games_bar_graph()
 
     def setupHomePage(self):
         # Set up the home page layout and widgets
@@ -520,6 +529,18 @@ class MainWindow(QMainWindow):
             self.timer_label.setText("Done!")
             self.update_round_label()
             self.again = True
+            history = get_punch_history()
+
+            if self.red_score > self.blue_score:
+                history["Games Won"] += 1
+                save_punch_history(history)
+            elif self.red_score < self.blue_score:
+                history["Games Lost"] += 1
+                save_punch_history(history)
+            elif self.red_score == self.blue_score:
+                history["Games Drawn"] += 1
+                save_punch_history(history)
+
             self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=False)
             show_session_complete_message()
             self.timer_label.setText("00:00")
@@ -708,6 +729,7 @@ class MainWindow(QMainWindow):
             self.update_combination_bar_graph()
             self.update_specific_punch_bar_graph()
             self.update_all_punch_bar_graph()
+            self.update_games_bar_graph()
             self.update_history_labels()
             show_history_reset_message()
 
@@ -786,3 +808,27 @@ class MainWindow(QMainWindow):
             text = pg.TextItem(f'{label}', color=(200, 200, 200), anchor=(0.5, 0))
             self.graph_specific_punch_widget.addItem(text)
             text.setPos(x, y)
+
+    def update_games_bar_graph(self):
+        punch_history = get_punch_history()
+        categories = ['Games Won', 'Games Lost', 'Games Drawn']
+        y_values = [punch_history.get("Games Won", 0), punch_history.get("Games Lost", 0), punch_history.get("Games Drawn", 0)]
+
+        # Define colors for each category using RGBA values
+        brushes = [(180, 0, 0, 255), (15, 82, 152, 255), (128, 0, 128, 255)]  # Red, Blue, Purple
+
+        self.graph_competition_widget.clear()
+
+        for i, (category, y, brush) in enumerate(zip(categories, y_values, brushes)):
+            bar_graph = pg.BarGraphItem(x=[i], height=[y], width=0.5, brush=brush)
+            self.graph_competition_widget.addItem(bar_graph)
+
+            # Adding text labels on top of each bar
+            text = pg.TextItem(f'{y}', color=(200, 200, 200), anchor=(0.5, 0))
+            self.graph_competition_widget.addItem(text)
+            text.setPos(i, y)
+
+        # Update x-axis to show category names instead of numbers
+        axis = self.graph_competition_widget.getAxis('bottom')
+        axis.setTicks([list(zip(range(len(categories)), categories))])
+

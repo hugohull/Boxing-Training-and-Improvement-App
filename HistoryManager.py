@@ -20,7 +20,10 @@ def load_punch_history():
             'Right Body': 0,
             'Completed Rounds': 0,
             'Correct Combinations': 0,
-            'Incorrect Combinations': 0
+            'Incorrect Combinations': 0,
+            'Games Won': 0,
+            'Games Lost': 0,
+            'Games Drawn': 0
         }
 
 
@@ -46,7 +49,10 @@ def reset_punch_history():
         'Right Body': 0,
         'Completed Rounds': 0,
         'Correct Combinations': 0,
-        'Incorrect Combinations': 0
+        'Incorrect Combinations': 0,
+        'Games Won': 0,
+        'Games Lost': 0,
+        'Games Drawn': 0
     }
 
     with open('history/punch_history.json', 'w') as file:

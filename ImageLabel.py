@@ -13,18 +13,25 @@ class ImageLabel(QLabel):
     def paintEvent(self, event):
         super(ImageLabel, self).paintEvent(event)
         if self.draw_line:
-            if self.mode == "Competition":
-                painter = QPainter(self)
-                pen = QPen(QColor(0, 255, 0), 7)
-                painter.setPen(pen)
-                painter.drawLine(self.width() // 2, 0, self.width() // 2, self.height())
-            elif self.mode == "Tracking" or self.mode == "Training":
-                center_x = self.width() // 2
-                line_x = center_x + self.line_offset
-                painter = QPainter(self)
-                pen = QPen(QColor(0, 255, 0), 7)
-                painter.setPen(pen)
+            painter = QPainter(self)
+            pen = QPen(QColor(0, 255, 0), 7)  # Green color, 7px thick
+            painter.setPen(pen)
+
+            center_x = self.width() // 2
+            line_x = center_x + self.line_offset
+
+            # Draw vertical line
+            if self.mode in ["Tracking", "Training"]:
                 painter.drawLine(line_x, 0, line_x, self.height())
+            elif self.mode == "Competition":
+                painter.drawLine(center_x, 0, center_x, self.height())
+
+            mid_height = self.height() // 2
+
+            if self.mode in ["Tracking", "Training"]:
+                painter.drawLine(line_x, mid_height, line_x + 50, mid_height)
+            elif self.mode == "Competition":
+                painter.drawLine(center_x - 50, mid_height, center_x + 50, mid_height)
 
     def enable_line(self, enable=True, mode=None):
         self.mode = mode
