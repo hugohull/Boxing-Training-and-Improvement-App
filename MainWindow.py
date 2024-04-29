@@ -216,14 +216,14 @@ class MainWindow(QMainWindow):
 
     def setupHomePage(self):
         # Set up the home page layout and widgets
-        self.homePage = QWidget()  # Assuming self.homePage is the container widget for the layout
+        self.homePage = QWidget()
         layout = QVBoxLayout(self.homePage)
 
         # Set stripes on each side of the widget that holds the layout
         self.homePage.setStyleSheet("""
             QWidget {
-                border-left: 10px solid red;  /* Red stripe on the left, 5 pixels wide */
-                border-right: 10px solid blue;  /* Blue stripe on the right, 5 pixels wide */
+                border-left: 15px solid rgba(180, 0, 0, 255);  /* Red stripe on the left */
+                border-right: 15px solid rgba(15, 82, 152, 255);  /* Blue stripe on the right */
             }
         """)
 
@@ -247,10 +247,18 @@ class MainWindow(QMainWindow):
         self.image_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.image_label)
 
-        self.openButton = QPushButton("Click for motivation.", self)
+        self.openButton = QPushButton("Click for motivation", self)
         self.openButton.clicked.connect(self.openRandomVideo)
         self.openButton.setStyleSheet(red_button_style)
-        layout.addWidget(self.openButton)
+
+        # Center the button using a horizontal layout
+        button_layout = QHBoxLayout()
+        button_layout.addStretch()  # Add stretch on left side
+        button_layout.addWidget(self.openButton)  # Add the button
+        button_layout.addStretch()  # Add stretch on right side
+
+        # Add the horizontal layout to the main layout
+        layout.addLayout(button_layout)
 
         self.homePage.setLayout(layout)
 
