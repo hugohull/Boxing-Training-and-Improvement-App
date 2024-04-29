@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, \
-    QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp, QMessageBox
+    QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp, QMessageBox, QScrollArea
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer, QUrl
 from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont, QDesktopServices
 import pyqtgraph as pg
@@ -167,6 +167,10 @@ class MainWindow(QMainWindow):
         self.graph_specific_punch_widget.setTitle("Distribution of specific punches.")
         self.graph_specific_punch_widget.setAlignment(Qt.AlignCenter)
 
+        # Handle wheel events by forwarding them to the scroll area
+        for widget in [self.graph_widget, self.graph_combination_widget, self.graph_specific_punch_widget]:
+            widget.wheelEvent = lambda event, w=widget: scroll_area.wheelEvent(event)
+
         # Create page title
         title = QLabel('History', self)
         title.setStyleSheet("font-size: 30px; font-weight: bold")
@@ -185,9 +189,24 @@ class MainWindow(QMainWindow):
         layout.addWidget(title)  # Add the welcome label to the layout
         layout.addWidget(graphs_subtitle)
         # Adding graph widgets to layout.
-        layout.addWidget(self.graph_widget)
-        layout.addWidget(self.graph_combination_widget)
-        layout.addWidget(self.graph_specific_punch_widget)
+        # layout.addWidget(self.graph_widget)
+        # layout.addWidget(self.graph_combination_widget)
+        # layout.addWidget(self.graph_specific_punch_widget)
+        # Scroll Area
+        scroll_area = QScrollArea(self.historyPage)
+        scroll_area_widget = QWidget()
+        scroll_area_layout = QVBoxLayout(scroll_area_widget)
+
+        # Add your graph widgets to the scroll area layout
+        scroll_area_layout.addWidget(self.graph_widget)
+        scroll_area_layout.addWidget(self.graph_combination_widget)
+        scroll_area_layout.addWidget(self.graph_specific_punch_widget)
+        scroll_area_widget.setLayout(scroll_area_layout)
+        scroll_area.setWidget(scroll_area_widget)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setMinimumHeight(400)
+
+        layout.addWidget(scroll_area)
 
         # Adding other widgets to layout.
         layout.addWidget(statistics_subtitle)
@@ -227,17 +246,24 @@ class MainWindow(QMainWindow):
             }
         """)
 
+        # Group the title and subtitle in a vertical layout
+        title_layout = QVBoxLayout()  # Nested QVBoxLayout for title and subtitle
+        title_layout.setSpacing(10)  # Reduced spacing between title and subtitle
+
         # Create welcome label
         welcome_label = QLabel('Welcome to BoxingApp', self.homePage)
         welcome_label.setAlignment(Qt.AlignCenter)
         welcome_label.setStyleSheet("QLabel { font-size: 30pt; font-weight: bold; }")
-        layout.addWidget(welcome_label)
+        title_layout.addWidget(welcome_label)
 
         # Subtitle
         subtitle_label = QLabel('The home of modern boxing training and improvement', self.homePage)
         subtitle_label.setAlignment(Qt.AlignCenter)
         subtitle_label.setStyleSheet("QLabel { font-size: 20pt; font-weight: bold; }")
-        layout.addWidget(subtitle_label)
+        title_layout.addWidget(subtitle_label)
+
+        # Add title layout to the main layout
+        layout.addLayout(title_layout)
 
         # Create image label
         self.image_label = QLabel(self.homePage)
