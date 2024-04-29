@@ -206,8 +206,8 @@ class MainWindow(QMainWindow):
 
         # Add your graph widgets to the scroll area layout
         scroll_area_layout.addWidget(self.graph_widget)
-        scroll_area_layout.addWidget(self.graph_combination_widget)
         scroll_area_layout.addWidget(self.graph_specific_punch_widget)
+        scroll_area_layout.addWidget(self.graph_combination_widget)
         scroll_area_layout.addWidget(self.graph_competition_widget)
         scroll_area_widget.setLayout(scroll_area_layout)
         scroll_area.setWidget(scroll_area_widget)
