@@ -230,8 +230,8 @@ class MainWindow(QMainWindow):
 
         # Create image label
         self.image_label = QLabel(self)
-        pixmap = QPixmap('Images/gloves.jpg')
-        pixmap = pixmap.scaled(450, 500, Qt.KeepAspectRatio)
+        pixmap = QPixmap('Images/logo.png')
+        pixmap = pixmap.scaled(450, 500, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.image_label.setPixmap(pixmap)
         self.image_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.image_label)
