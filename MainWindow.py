@@ -145,6 +145,16 @@ class MainWindow(QMainWindow):
         self.show()
 
     def setupHistoryPage(self):
+
+        # self.historyPage.setObjectName("HistoryPage")
+        #
+        # self.historyPage.setStyleSheet("""
+        #     #HistoryPage {
+        #         border-left: 15px solid rgba(180, 0, 0, 255);  /* Red stripe on the left */
+        #         border-right: 15px solid rgba(15, 82, 152, 255);  /* Blue stripe on the right */
+        #     }
+        # """)
+
         layout = QVBoxLayout()
         self.update_history_labels()
 
@@ -304,6 +314,16 @@ class MainWindow(QMainWindow):
         QDesktopServices.openUrl(QUrl(url))
 
     def setupTimerPage(self):
+
+        self.timerPage.setObjectName("TimerPage")
+
+        self.timerPage.setStyleSheet("""
+            #TimerPage {
+                border-left: 15px solid rgba(180, 0, 0, 255);  /* Red stripe on the left */
+                border-right: 15px solid rgba(15, 82, 152, 255);  /* Blue stripe on the right */
+            }
+        """)
+
         # Layouts
         main_layout = QVBoxLayout()
         main_layout.setSpacing(10)  # Sets the spacing between widgets in the layout to 10 pixels
@@ -429,6 +449,7 @@ class MainWindow(QMainWindow):
         buttons_layout.addWidget(self.start_competition_mode_button)
         buttons_layout.addWidget(self.pause_button)
         buttons_layout.setAlignment(Qt.AlignCenter)
+        # buttons_layout.setS
         button_container.setLayout(buttons_layout)
 
         label_wrapper = QWidget()
@@ -455,10 +476,6 @@ class MainWindow(QMainWindow):
 
         self.skill_level_label = QLabel('Skill Level:')
         form_layout.addRow(self.skill_level_label, self.skill_level_combo)
-
-        # Buttons layout
-        buttons_layout.addWidget(self.start_button)
-        buttons_layout.addWidget(self.start_with_video_button)
 
         # Adding widgets to main layout
         main_layout.addLayout(form_layout)
