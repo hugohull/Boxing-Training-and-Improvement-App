@@ -7,7 +7,8 @@ from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QDesktopServices
 import pyqtgraph as pg
 from ImageLabel import ImageLabel
 from styles import *
-from utils import play_ding, show_error_message, show_history_reset_message, show_session_complete_message, get_rand_url
+from utils import play_ding, show_error_message, show_history_reset_message, show_session_complete_message, \
+    get_rand_url, get_quote
 from VideoThread import VideoThread
 from HistoryManager import *
 
@@ -258,6 +259,7 @@ class MainWindow(QMainWindow):
         # Set up the home page layout and widgets
         self.homePage = QWidget()
         layout = QVBoxLayout(self.homePage)
+        layout.setContentsMargins(10, 10, 10, 30)
 
         # Set stripes on each side of the widget that holds the layout
         self.homePage.setStyleSheet("""
@@ -304,14 +306,30 @@ class MainWindow(QMainWindow):
         button_layout.addWidget(self.openButton)  # Add the button
         button_layout.addStretch()  # Add stretch on right side
 
+        # Create quote label
+        self.quoteLabel = QLabel("Quote will be here", self.homePage)
+        self.quoteLabel.setAlignment(Qt.AlignCenter)  # Center align the quote text
+        self.quoteLabel.setObjectName("quoteLabel")
+        self.quoteLabel.setStyleSheet("QLabel { font-size: 20pt; "
+                                      "font-style: italic; "
+                                      "}")
+
+        layout.addWidget(self.quoteLabel)  # Add the quote label to the main layout
+
         # Add the horizontal layout to the main layout
         layout.addLayout(button_layout)
+
+        self.updateQuote()
 
         self.homePage.setLayout(layout)
 
     def openRandomVideo(self):
         url = get_rand_url()
         QDesktopServices.openUrl(QUrl(url))
+
+    def updateQuote(self):
+        quote = get_quote()
+        self.quoteLabel.setText(quote)
 
     def setupTimerPage(self):
 
@@ -496,6 +514,7 @@ class MainWindow(QMainWindow):
 
     def setHomePage(self):
         self.stackedWidget.setCurrentWidget(self.homePage)
+        self.updateQuote()
 
     # Timer functions
     def start_timer(self):
