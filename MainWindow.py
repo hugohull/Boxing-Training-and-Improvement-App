@@ -1,6 +1,7 @@
 from PyQt5.QtChart import QChartView, QPieSeries, QChart
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, \
-    QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp, QMessageBox, QScrollArea
+    QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp, QMessageBox, QScrollArea, \
+    QComboBox
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer, QUrl
 from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont, QDesktopServices, QPainter, QBrush
 import pyqtgraph as pg
@@ -371,6 +372,9 @@ class MainWindow(QMainWindow):
         self.work_input = QLineEdit(self)
         self.rest_input = QLineEdit(self)
 
+        self.skill_level_combo = QComboBox(self)
+        self.skill_level_combo.addItems(["Beginner", "Intermediate", "Advanced"])
+
         # Input validators
         self.round_input.setValidator(QIntValidator(0, 99))
         self.rest_input.setValidator(QIntValidator(0, 300))
@@ -436,6 +440,9 @@ class MainWindow(QMainWindow):
         self.rest_time_label = QLabel('Rest Time (sec):')
         form_layout.addRow(self.rest_time_label, self.rest_input)
 
+        self.skill_level_label = QLabel('Skill Level:')
+        form_layout.addRow(self.skill_level_label, self.skill_level_combo)
+
         # Buttons layout
         buttons_layout.addWidget(self.start_button)
         buttons_layout.addWidget(self.start_with_video_button)
@@ -490,6 +497,9 @@ class MainWindow(QMainWindow):
             self.toggle_modes(tracker_mode=True, training_mode=False, competition_mode=False)
         elif self.last_used_mode == "Training":
             self.toggle_modes(tracker_mode=False, training_mode=True, competition_mode=False)
+        elif self.last_used_mode == "Competition":
+            self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=True)
+        self.thread.skill_level = self.skill_level_combo.currentText()
         self.current_phase = 'work'
         self.phase_label.show()
         self.phase_label.setText('Work')  # Update the phase label text
@@ -505,6 +515,8 @@ class MainWindow(QMainWindow):
         self.work_input.hide()
         self.rest_time_label.hide()
         self.rest_input.hide()
+        self.skill_level_label.hide()
+        self.skill_level_combo.hide()
 
     def start_rest(self):
         self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=False)
@@ -579,6 +591,8 @@ class MainWindow(QMainWindow):
         self.work_input.show()
         self.rest_time_label.show()
         self.rest_input.show()
+        self.skill_level_label.show()
+        self.skill_level_combo.show()
 
     def update_timer(self):
         if self.seconds_left > 0:

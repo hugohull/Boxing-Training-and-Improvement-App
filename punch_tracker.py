@@ -177,12 +177,19 @@ def speak_combination(combination):
 
 
 def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None,
-                      new_combination_callback=None, should_stop=lambda: False):
+                      new_combination_callback=None, should_stop=lambda: False, skill_level=None):
 
     def generate_random_combination():
         punches = ['Left Head', 'Left Body', 'Right Head', 'Right Body']
+        if skill_level is not None:
+            if skill_level == "Beginner":
+                num = 3
+            elif skill_level == "Intermediate":
+                num = 5
+            elif skill_level == "Advanced":
+                num = 7
         # punches = ['Left Head', 'Left Body']
-        num_punches = random.randint(1, 4)  # Generate a random number of punches (1 to 4)
+        num_punches = random.randint(1, num)  # Generate a random number of punches (1 to 4)
         return [random.choice(punches) for _ in range(num_punches)]
 
     current_combination = generate_random_combination()
@@ -300,11 +307,18 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
 
 
 def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, flash_screen_callback=None, new_combination_callback=None,
-                         red_score_callback=None, blue_score_callback=None, should_stop=lambda: False):
+                         red_score_callback=None, blue_score_callback=None, should_stop=lambda: False, skill_level=None):
 
     def generate_random_combination():
         punches = ['Body', 'Head']
-        num_punches = random.randint(1, 4)  # Generate a random number of punches (1 to 4)
+        if skill_level is not None:
+            if skill_level == "Beginner":
+                num = 3
+            elif skill_level == "Intermediate":
+                num = 5
+            elif skill_level == "Advanced":
+                num = 7
+        num_punches = random.randint(1, num)  # Generate a random number of punches (1 to 4)
         return [random.choice(punches) for _ in range(num_punches)]
 
     current_combination = generate_random_combination()
