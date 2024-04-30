@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout
     QFormLayout, QGraphicsDropShadowEffect, QMainWindow, QStackedWidget, QAction, qApp, QMessageBox, QScrollArea, \
     QComboBox
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer, QUrl
-from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QFont, QDesktopServices, QPainter, QBrush
+from PyQt5.QtGui import QPixmap, QImage, QIntValidator, QColor, QDesktopServices, QBrush
 import pyqtgraph as pg
 from ImageLabel import ImageLabel
 from styles import *
@@ -344,6 +344,18 @@ class MainWindow(QMainWindow):
         self.phase_label.setAlignment(Qt.AlignCenter)
         self.phase_label.setStyleSheet("font-size: 28px; font-weight: bold;")
 
+        # Create image label
+        self.example_image_label = QLabel(self.homePage)
+        pixmap = QPixmap('Images/Example.png')
+        pixmap = pixmap.scaled(350, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.example_image_label.setPixmap(pixmap)
+        self.example_image_label.setAlignment(Qt.AlignCenter)
+        shadow_effect_example = QGraphicsDropShadowEffect(self.image_label)
+        shadow_effect_example.setBlurRadius(10)  # Shadow size
+        shadow_effect_example.setColor(QColor(0, 0, 0, 60))  # Shadow color and transparency
+        shadow_effect_example.setOffset(5, 5)  # Shadow offset
+        self.example_image_label.setGraphicsEffect(shadow_effect_example)
+
         # Combination Label
         self.combination_label = QLabel('Combination', self)  # Initial text is empty
         self.combination_label.setAlignment(Qt.AlignCenter)
@@ -429,6 +441,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(label_wrapper)
         main_layout.addWidget(self.round_label)
         main_layout.addWidget(self.phase_label)
+        main_layout.addWidget(self.example_image_label)
 
         # Form layout for inputs
         self.round_input_label = QLabel('Rounds:')
@@ -499,7 +512,8 @@ class MainWindow(QMainWindow):
             self.toggle_modes(tracker_mode=False, training_mode=True, competition_mode=False)
         elif self.last_used_mode == "Competition":
             self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=True)
-        self.thread.skill_level = self.skill_level_combo.currentText()
+        if self.thread is not None:
+            self.thread.skill_level = self.skill_level_combo.currentText()
         self.current_phase = 'work'
         self.phase_label.show()
         self.phase_label.setText('Work')  # Update the phase label text
@@ -517,6 +531,7 @@ class MainWindow(QMainWindow):
         self.rest_input.hide()
         self.skill_level_label.hide()
         self.skill_level_combo.hide()
+        self.example_image_label.hide()
 
     def start_rest(self):
         self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=False)
@@ -593,6 +608,7 @@ class MainWindow(QMainWindow):
         self.rest_input.show()
         self.skill_level_label.show()
         self.skill_level_combo.show()
+        self.example_image_label.show()
 
     def update_timer(self):
         if self.seconds_left > 0:
