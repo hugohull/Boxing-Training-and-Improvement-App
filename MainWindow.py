@@ -13,9 +13,29 @@ from VideoThread import VideoThread
 from HistoryManager import *
 
 
+def openRandomVideo():
+    url = get_rand_url()
+    QDesktopServices.openUrl(QUrl(url))
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.openButton = None
+        self.skill_level_label = None
+        self.example_image_label = None
+        self.track_punches = None
+        self.skill_level_combo = None
+        self.timerPage = None
+        self.historyPage = None
+        self.graph_specific_punch_widget = None
+        self.homePage = None
+        self.graph_competition_widget = None
+        self.graph_specific_punch_chart = None
+        self.reset_history_button = None
+        self.quoteLabel = None
+        self.stackedWidget = None
+        self.graph_combination_widget = None
         self.graph_widget = None
         self.red_score_label = None
         self.blue_score_label = None
@@ -147,17 +167,18 @@ class MainWindow(QMainWindow):
 
     def setupHistoryPage(self):
 
-        # self.historyPage.setObjectName("HistoryPage")
-        #
-        # self.historyPage.setStyleSheet("""
-        #     #HistoryPage {
-        #         border-left: 15px solid rgba(180, 0, 0, 255);  /* Red stripe on the left */
-        #         border-right: 15px solid rgba(15, 82, 152, 255);  /* Blue stripe on the right */
-        #     }
-        # """)
+        self.historyPage.setObjectName("HistoryPage")
+
+        self.historyPage.setStyleSheet("""
+            #HistoryPage {
+                border-left: 15px solid rgba(180, 0, 0, 255);  /* Red stripe on the left */
+                border-right: 15px solid rgba(15, 82, 152, 255);  /* Blue stripe on the right */
+            }
+        """)
 
         layout = QVBoxLayout()
         self.update_history_labels()
+        layout.setContentsMargins(50, 10, 50, 30)  
 
         # Setting up the graph widget
         self.graph_widget = pg.PlotWidget()
@@ -208,16 +229,13 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(title)  # Add the welcome label to the layout
         layout.addWidget(graphs_subtitle)
-        # Adding graph widgets to layout.
-        # layout.addWidget(self.graph_widget)
-        # layout.addWidget(self.graph_combination_widget)
-        # layout.addWidget(self.graph_specific_punch_widget)
+
         # Scroll Area
         scroll_area = QScrollArea(self.historyPage)
         scroll_area_widget = QWidget()
         scroll_area_layout = QVBoxLayout(scroll_area_widget)
 
-        # Add your graph widgets to the scroll area layout
+        # Add the graph widgets to the scroll area layout
         scroll_area_layout.addWidget(self.graph_specific_punch_widget)
         scroll_area_layout.addWidget(self.graph_widget)
         scroll_area_layout.addWidget(self.graph_combination_widget)
@@ -270,8 +288,8 @@ class MainWindow(QMainWindow):
         """)
 
         # Group the title and subtitle in a vertical layout
-        title_layout = QVBoxLayout()  # Nested QVBoxLayout for title and subtitle
-        title_layout.setSpacing(10)  # Reduced spacing between title and subtitle
+        title_layout = QVBoxLayout()  
+        title_layout.setSpacing(10)
 
         # Create welcome label
         welcome_label = QLabel('Welcome to BoxingApp', self.homePage)
@@ -297,24 +315,26 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.image_label)
 
         self.openButton = QPushButton("Click for motivation", self)
-        self.openButton.clicked.connect(self.openRandomVideo)
+        self.openButton.clicked.connect(openRandomVideo)
         self.openButton.setStyleSheet(red_button_style)
 
         # Center the button using a horizontal layout
         button_layout = QHBoxLayout()
-        button_layout.addStretch()  # Add stretch on left side
-        button_layout.addWidget(self.openButton)  # Add the button
-        button_layout.addStretch()  # Add stretch on right side
+        button_layout.addStretch()
+        button_layout.addWidget(self.openButton)
+        button_layout.addStretch()
 
         # Create quote label
         self.quoteLabel = QLabel("Quote will be here", self.homePage)
-        self.quoteLabel.setAlignment(Qt.AlignCenter)  # Center align the quote text
+        self.quoteLabel.setAlignment(Qt.AlignCenter)
         self.quoteLabel.setObjectName("quoteLabel")
+        self.quoteLabel.setWordWrap(True)
         self.quoteLabel.setStyleSheet("QLabel { font-size: 20pt; "
                                       "font-style: italic; "
                                       "}")
 
-        layout.addWidget(self.quoteLabel)  # Add the quote label to the main layout
+        # Add the quote label to the main layout
+        layout.addWidget(self.quoteLabel)
 
         # Add the horizontal layout to the main layout
         layout.addLayout(button_layout)
@@ -322,10 +342,6 @@ class MainWindow(QMainWindow):
         self.updateQuote()
 
         self.homePage.setLayout(layout)
-
-    def openRandomVideo(self):
-        url = get_rand_url()
-        QDesktopServices.openUrl(QUrl(url))
 
     def updateQuote(self):
         quote = get_quote()
@@ -344,11 +360,10 @@ class MainWindow(QMainWindow):
 
         # Layouts
         main_layout = QVBoxLayout()
-        main_layout.setSpacing(10)  # Sets the spacing between widgets in the layout to 10 pixels
-        main_layout.setContentsMargins(10, 10, 10, 10)  # Sets the margins of the layout (left, top, right, bottom)
+        main_layout.setSpacing(10)
+        main_layout.setContentsMargins(10, 10, 10, 10)
 
         form_layout = QFormLayout()
-        buttons_layout = QHBoxLayout()
 
         # Labels
         self.image_label = ImageLabel(self)
@@ -395,7 +410,7 @@ class MainWindow(QMainWindow):
         self.example_image_label.setGraphicsEffect(shadow_effect_example)
 
         # Combination Label
-        self.combination_label = QLabel('Combination', self)  # Initial text is empty
+        self.combination_label = QLabel('Combination', self)
         self.combination_label.setAlignment(Qt.AlignCenter)
         self.combination_label.setStyleSheet("font-size: 28px; font-weight: bold;")
         self.combination_label.hide()
@@ -411,7 +426,7 @@ class MainWindow(QMainWindow):
 
         # Score Layout
         score_layout = QHBoxLayout()
-        score_layout.setContentsMargins(40, 0, 40, 0)  # Margins: LTRB
+        score_layout.setContentsMargins(40, 0, 40, 0) 
 
         # Add labels to the layout with alignment
         score_layout.addWidget(self.red_score_label, 0, Qt.AlignLeft)
@@ -451,12 +466,12 @@ class MainWindow(QMainWindow):
         self.thread = None
 
         # Setting placeholders
-        # self.round_input.setPlaceholderText("Enter number of rounds.")
-        # self.work_input.setPlaceholderText("Enter number of seconds (Work).")
-        # self.rest_input.setPlaceholderText("Enter number of seconds (Rest).")
-        self.round_input.setText("3")
-        self.work_input.setText("30")
-        self.rest_input.setText("30")
+        self.round_input.setPlaceholderText("Enter number of rounds.")
+        self.work_input.setPlaceholderText("Enter number of seconds (Work).")
+        self.rest_input.setPlaceholderText("Enter number of seconds (Rest).")
+        # self.round_input.setText("3")
+        # self.work_input.setText("30")
+        # self.rest_input.setText("30")
 
         # Container for buttons
         button_container = QWidget()
@@ -467,13 +482,12 @@ class MainWindow(QMainWindow):
         buttons_layout.addWidget(self.start_competition_mode_button)
         buttons_layout.addWidget(self.pause_button)
         buttons_layout.setAlignment(Qt.AlignCenter)
-        # buttons_layout.setS
         button_container.setLayout(buttons_layout)
 
         label_wrapper = QWidget()
-        label_wrapper_layout = QVBoxLayout()  # Use QVBoxLayout for vertical centering
+        label_wrapper_layout = QVBoxLayout()
         label_wrapper_layout.addWidget(self.timer_label)
-        label_wrapper_layout.setAlignment(self.timer_label, Qt.AlignCenter)  # Center the label in the wrapper
+        label_wrapper_layout.setAlignment(self.timer_label, Qt.AlignCenter)
         label_wrapper.setLayout(label_wrapper_layout)
 
         # Add the timer label & round label
@@ -532,7 +546,7 @@ class MainWindow(QMainWindow):
             self.default_round = int(self.round_input.text())
             self.start_work()
             self.pause_button.show()
-            self.start_button.setText('Stop Timer')  # Change the button text to 'Stop Timer'
+            self.start_button.setText('Stop Timer')
             self.start_button.setStyleSheet(red_button_style)
             self.start_button.clicked.disconnect()
             self.start_button.clicked.connect(self.stop_timer)
@@ -633,7 +647,6 @@ class MainWindow(QMainWindow):
         self.start_with_video_button.show()
         self.start_training_mode_button.show()
         self.start_competition_mode_button.show()
-        # self.image_label.hide()
         self.phase_label.hide()
         # Show inputs and labels
         self.round_input_label.show()
@@ -665,7 +678,7 @@ class MainWindow(QMainWindow):
             self.toggle_modes(tracker_mode=False, training_mode=False, competition_mode=False)
             self.timer.stop()
             self.pause_button.setText('Resume Timer')
-            self.pause_button.setStyleSheet(green_button_style)  # Optional: Change style if you want to indicate resume
+            self.pause_button.setStyleSheet(green_button_style)
         else:
             if self.last_used_mode == "Tracking":
                 self.toggle_modes(tracker_mode=True, training_mode=False, competition_mode=False)
@@ -716,7 +729,7 @@ class MainWindow(QMainWindow):
             self.thread = VideoThread()
             self.toggle_modes(tracker_mode=True, training_mode=False, competition_mode=False)
             self.thread.change_pixmap_signal.connect(self.set_image)
-            self.thread.flash_needed.connect(self.flash_color)  # Connect the new signal
+            self.thread.flash_needed.connect(self.flash_color)
             self.thread.start()
         self.start_timer()
         self.phase_label.show()
@@ -744,11 +757,11 @@ class MainWindow(QMainWindow):
         self.combination_label.show()
         self.image_label.setAlignment(Qt.AlignCenter)
 
-    def update_red_score(self, score):
+    def update_red_score(self):
         self.red_score += 1
         self.red_score_label.setText(f'Red Score: {self.red_score}')
 
-    def update_blue_score(self, score):
+    def update_blue_score(self):
         self.blue_score += 1
         self.blue_score_label.setText(f'Blue Score: {self.blue_score}')
 
@@ -769,7 +782,6 @@ class MainWindow(QMainWindow):
             self.thread.start()
         self.start_timer()
         self.phase_label.show()
-        # Change to competition label
         self.image_label.show()
         self.combination_label.show()
         self.red_score_label.show()
@@ -834,7 +846,7 @@ class MainWindow(QMainWindow):
 
         categories = ['Correct Combinations', 'Incorrect Combinations']
         values = [correct, incorrect]
-        colors = [QColor('green'), (180, 0, 0, 255)]  # Use QColor objects
+        colors = [QColor('green'), (180, 0, 0, 255)]
 
         self.graph_combination_widget.clear()
         for i, val in enumerate(values):
@@ -865,8 +877,8 @@ class MainWindow(QMainWindow):
         series = QPieSeries()
         series.setPieSize(1)
         for category, value, color in zip(categories, values, colors):
-            slice = series.append(category + f" ({value})", value)
-            slice.setBrush(color)
+            pie_slice = series.append(category + f" ({value})", value)
+            pie_slice.setBrush(color)
 
         # Add the series to the chart
         self.graph_specific_punch_chart.addSeries(series)
@@ -885,7 +897,6 @@ class MainWindow(QMainWindow):
         y_values = [punch_history.get("Games Won", 0), punch_history.get("Games Lost", 0),
                     punch_history.get("Games Drawn", 0)]
 
-        # Define colors for each category using RGBA values
         brushes = [(180, 0, 0, 255), (15, 82, 152, 255), (128, 0, 128, 255)]  # Red, Blue, Purple
 
         self.graph_competition_widget.clear()
@@ -899,6 +910,5 @@ class MainWindow(QMainWindow):
             self.graph_competition_widget.addItem(text)
             text.setPos(i, y)
 
-        # Update x-axis to show category names instead of numbers
         axis = self.graph_competition_widget.getAxis('bottom')
         axis.setTicks([list(zip(range(len(categories)), categories))])

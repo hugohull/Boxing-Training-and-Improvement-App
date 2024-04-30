@@ -25,7 +25,7 @@ END_GAME = (630, 800)
 COLOUR = (0, 255, 0)
 THICKNESS = 9
 
-# # Webcam video settings
+# Webcam video settings
 cap = cv2.VideoCapture(0)
 cap.set(3, frameWidth)
 cap.set(4, frameHeight)
@@ -188,13 +188,12 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                 num = 5
             elif skill_level == "Advanced":
                 num = 7
-        # punches = ['Left Head', 'Left Body']
         num_punches = random.randint(1, num)  # Generate a random number of punches (1 to 4)
         return [random.choice(punches) for _ in range(num_punches)]
 
     current_combination = generate_random_combination()
     print(current_combination)
-    speak_combination(current_combination)  # Speak the current combination
+    speak_combination(current_combination)
 
     detected_punches = []
 

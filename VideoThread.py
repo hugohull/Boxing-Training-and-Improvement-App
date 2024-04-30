@@ -19,7 +19,7 @@ class VideoThread(QThread):
         self.mode = mode
         self._is_running = True
         self.track_punches_flag = lambda: True
-        self.tracker_mode_active = False  # Set the initial state to False
+        self.tracker_mode_active = False
         self.training_mode_active = False
         self.competition_mode_active = False
         self.cap = None
@@ -78,4 +78,3 @@ class VideoThread(QThread):
         convert_to_Qt_format = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
         p = convert_to_Qt_format.scaled(640, 480, aspectRatioMode=Qt.KeepAspectRatio)
         self.change_pixmap_signal.emit(p)
-

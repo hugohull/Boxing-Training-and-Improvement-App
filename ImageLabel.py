@@ -1,4 +1,3 @@
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QPen, QColor
 from PyQt5.QtWidgets import QLabel
 
@@ -14,7 +13,7 @@ class ImageLabel(QLabel):
         super(ImageLabel, self).paintEvent(event)
         if self.draw_line:
             painter = QPainter(self)
-            pen = QPen(QColor(0, 255, 0), 7)  # Green color, 7px thick
+            pen = QPen(QColor(0, 255, 0), 7)
             painter.setPen(pen)
 
             center_x = self.width() // 2
