@@ -13,7 +13,7 @@ The boxing app that uses the webcam to provide punch tracking and training to th
 ### Prerequisites
 
 Make sure to have the following installed before proceeding:
-- **Operating System**: Developed on macOS Version 14.4.1
+- **Operating System**: Developed and tested only on macOS Version 14.4.1
 - **Python 3.8 or higher** 
 - **Additional dependencies**: (listed below)
 
@@ -27,14 +27,11 @@ Make sure to have the following installed before proceeding:
    - pip install PyQtChart 
    - pip install pyqtgraph
    - pip install pydub
-   - pip install cv2
    - pip install opencv-python
+   - pip install opencv-contrib-python
    - pip install gtts
    - pip install playsound
-  - pip install opencv-contrib-python
-
-
-
+3. Open in IDE and run main.py.
 
 ### Installing from Archive file
 
@@ -42,22 +39,27 @@ Make sure to have the following installed before proceeding:
 2. Unzip file
 3. Install dependencies:
    - pip install PyQtChart 
-   - pip install opencv-contrib-python
    - pip install PyQt5
+   - pip install PyQtChart 
+   - pip install pyqtgraph
+   - pip install pydub
    - pip install opencv-python
-   - pip install cv2
-   - pip install playsound   
-4. Open in IDE and run main.py or run main.py from command line.
+   - pip install opencv-contrib-python
+   - pip install gtts
+   - pip install playsound
+4. Open in IDE and run main.py.
 
 ## Usage
 
-To run the software, run main.py in a IDE of your choice. It was developed using PyCharm professional in macOS 
+To run the software, run main.py in a IDE of your choice. It was developed using PyCharm professional in macOS. 
+
+**Note:** You may also have to give your IDE permissions to use your webcam.
 
 
 ## Requirements
 
 This software requires:
-- **Operating System**: Has been tested on macOS and Linux. But should work on Windows.
+- **Operating System**: Has only been tested on macOS.
 - **Hardware Requirements**: A PC that can run a simple Python programme.
 
 ## File List
