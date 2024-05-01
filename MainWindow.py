@@ -21,6 +21,9 @@ def openRandomVideo():
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.show_label = False
+        self.rest_seconds = None
+        self.work_seconds = None
         self.openButton = None
         self.skill_level_label = None
         self.example_image_label = None
@@ -533,27 +536,45 @@ class MainWindow(QMainWindow):
     # Timer functions
     def start_timer(self):
         self.again = False
-        self.rounds = int(self.round_input.text())
-        work_seconds = int(self.work_input.text())
-        rest_seconds = int(self.rest_input.text())
-        if self.rounds == 0:
-            show_error_message("Number of rounds cannot be zero.")
-        elif work_seconds == 0:
-            show_error_message("Work seconds cannot be zero.")
-        elif rest_seconds == 0:
-            show_error_message("Rest seconds cannot be zero.")
+        # Initial input validation
+        if not self.round_input.text().isdigit():
+            self.image_label.hide()
+            show_error_message("Round field cannot be empty.")
+        elif not self.work_input.text().isdigit():
+            self.image_label.hide()
+            show_error_message("Work field cannot be empty.")
+        elif not self.rest_input.text().isdigit():
+            self.image_label.hide()
+            show_error_message("Rest field cannot be empty.")
         else:
-            self.default_round = int(self.round_input.text())
-            self.start_work()
-            self.pause_button.show()
-            self.start_button.setText('Stop Timer')
-            self.start_button.setStyleSheet(red_button_style)
-            self.start_button.clicked.disconnect()
-            self.start_button.clicked.connect(self.stop_timer)
-            self.start_with_video_button.hide()
-            self.start_training_mode_button.hide()
-            self.start_competition_mode_button.hide()
-            self.update_round_label()
+            # Input conversion
+            self.rounds = int(self.round_input.text())
+            self.work_seconds = int(self.work_input.text())
+            self.rest_seconds = int(self.rest_input.text())
+
+            if self.rounds == 0:
+                self.image_label.hide()
+                show_error_message("Number of rounds cannot be zero.")
+                self.image_label.hide()
+            elif self.work_seconds == 0:
+                self.image_label.hide()
+                show_error_message("Work seconds cannot be zero.")
+            elif self.rest_seconds == 0:
+                self.image_label.hide()
+                show_error_message("Rest seconds cannot be zero.")
+            else:
+                self.show_label = True
+                self.default_round = int(self.round_input.text())
+                self.start_work()
+                self.pause_button.show()
+                self.start_button.setText('Stop Timer')
+                self.start_button.setStyleSheet(red_button_style)
+                self.start_button.clicked.disconnect()
+                self.start_button.clicked.connect(self.stop_timer)
+                self.start_with_video_button.hide()
+                self.start_training_mode_button.hide()
+                self.start_competition_mode_button.hide()
+                self.update_round_label()
 
     def start_work(self):
         if self.last_used_mode == "Tracking":
@@ -629,6 +650,7 @@ class MainWindow(QMainWindow):
             self.reset_timer()
 
     def reset_timer(self):
+        self.show_label = False
         self.rounds = 0
         self.current_round = 1
         self.last_used_mode = None
@@ -733,8 +755,9 @@ class MainWindow(QMainWindow):
             self.thread.start()
         self.start_timer()
         self.phase_label.show()
-        self.image_label.show()
-        self.image_label.setAlignment(Qt.AlignCenter)
+        if self.show_label == True:
+            self.image_label.show()
+            self.image_label.setAlignment(Qt.AlignCenter)
 
     def start_training_mode(self):
         self.image_label.enable_line(True, mode="Training")
@@ -746,16 +769,16 @@ class MainWindow(QMainWindow):
             self.is_training_mode_active = True
             self.thread = VideoThread(mode='training')
             self.thread.new_combination_signal.connect(self.update_combination_display)
-            print("Signal connected to update_combination_display")
             self.toggle_modes(tracker_mode=False, training_mode=True, competition_mode=False)
             self.thread.change_pixmap_signal.connect(self.set_image)
             self.thread.flash_needed.connect(self.flash_color)
             self.thread.start()
         self.start_timer()
         self.phase_label.show()
-        self.image_label.show()
-        self.combination_label.show()
-        self.image_label.setAlignment(Qt.AlignCenter)
+        if self.show_label == True:
+            self.image_label.show()
+            self.combination_label.show()
+            self.image_label.setAlignment(Qt.AlignCenter)
 
     def update_red_score(self):
         self.red_score += 1
@@ -782,16 +805,16 @@ class MainWindow(QMainWindow):
             self.thread.start()
         self.start_timer()
         self.phase_label.show()
-        self.image_label.show()
-        self.combination_label.show()
-        self.red_score_label.show()
-        self.blue_score_label.show()
-        self.image_label.setAlignment(Qt.AlignCenter)
+        if self.show_label == True:
+            self.image_label.show()
+            self.combination_label.show()
+            self.red_score_label.show()
+            self.blue_score_label.show()
+            self.image_label.setAlignment(Qt.AlignCenter)
 
     def update_combination_display(self, combination):
         # Update the GUI with the new combination
         self.combination_label.setText(f"Combination: {combination}")
-        print("Label updated to:", combination)
 
     def update_history_labels(self):
         punch_history = get_punch_history()

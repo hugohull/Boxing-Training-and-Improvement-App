@@ -1,5 +1,4 @@
 import json
-from pprint import pprint
 
 
 def load_punch_history():
@@ -59,7 +58,3 @@ def reset_punch_history():
         json.dump(default_history, file)
 
     load_punch_history()
-
-
-def print_punch_history():
-    pprint(load_punch_history(), sort_dicts=False)

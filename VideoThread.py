@@ -60,15 +60,11 @@ class VideoThread(QThread):
                 )
 
             if not self._is_running:
-                print("self._is_running is False")
                 break
 
     def stop(self):
-        print("Thread should be stopepd.")
         self.cap.release()
-        print("cap released")
         self._is_running = False
-        print("Set to false")
 
     def update_frame(self, frame):
         # Convert frame to format suitable for QtGui

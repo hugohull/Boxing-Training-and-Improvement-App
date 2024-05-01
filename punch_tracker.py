@@ -124,7 +124,6 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
                             punch_history[f'Total {body_part}'] += 1
                             punch_history[f'Left {body_part}'] += 1
                             save_punch_history(punch_history)
-                            print("Red")
                             if flash_screen_callback is not None:
                                 flash_screen_callback('red')
                     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
@@ -144,7 +143,6 @@ def run_punch_tracker(update_gui_func=None, track_punches_flag=lambda: True, fla
                             punch_history[f'Total {body_part}'] += 1
                             punch_history[f'Right {body_part}'] += 1
                             save_punch_history(punch_history)
-                            print("Blue")
                             if flash_screen_callback is not None:
                                 flash_screen_callback('blue')
                     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
@@ -181,6 +179,7 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
 
     def generate_random_combination():
         punches = ['Left Head', 'Left Body', 'Right Head', 'Right Body']
+        num = 0
         if skill_level is not None:
             if skill_level == "Beginner":
                 num = 3
@@ -188,18 +187,18 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                 num = 5
             elif skill_level == "Advanced":
                 num = 7
-        num_punches = random.randint(1, num)  # Generate a random number of punches (1 to 4)
-        return [random.choice(punches) for _ in range(num_punches)]
+        if num != 0:
+            num_punches = random.randint(1, num)  # Generate a random number of punches (1 to 4)
+            return [random.choice(punches) for _ in range(num_punches)]
 
     current_combination = generate_random_combination()
-    print(current_combination)
-    speak_combination(current_combination)
-
     detected_punches = []
 
-    new_combination_callback(',  '.join(current_combination))
+    if current_combination != None:
+        speak_combination(current_combination)
+        new_combination_callback(',  '.join(current_combination))
 
-    while not should_stop():
+    while not should_stop() and current_combination != None:
         success, img = cap.read()
         if not success:
             break
@@ -253,7 +252,6 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     save_punch_history(punch_history)
                     if flash_screen_callback is not None:
                         flash_screen_callback('red')
-                    print(detected_punches)
 
         # Detect blue punches
         contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -271,26 +269,21 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
                     save_punch_history(punch_history)
                     if flash_screen_callback is not None:
                         flash_screen_callback('blue')
-                    print(detected_punches)
 
         # Detect if the combination detected is = the set combination
         if track_punches_flag():
             if len(detected_punches) == len(current_combination):
                 if detected_punches == current_combination:
-                    print("Correct combination thrown")
                     play_correct()
                     punch_history['Correct Combinations'] += 1
                     save_punch_history(punch_history)
                     current_combination = generate_random_combination()  # Generate a new combination for the next round
-                    print(current_combination)  # Print the new combination
                     speak_combination(current_combination)
                     new_combination_callback(',  '.join(current_combination))
-                    print("Emitting new combination:", ' '.join(current_combination))
                     detected_punches = []
                     if flash_screen_callback is not None:
                         flash_screen_callback('green')
                 else:
-                    print("Try Again")
                     play_incorrect()
                     detected_punches = []
                     punch_history['Incorrect Combinations'] += 1
@@ -310,6 +303,7 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
 
     def generate_random_combination():
         punches = ['Body', 'Head']
+        num = 0
         if skill_level is not None:
             if skill_level == "Beginner":
                 num = 3
@@ -317,21 +311,23 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                 num = 5
             elif skill_level == "Advanced":
                 num = 7
-        num_punches = random.randint(1, num)  # Generate a random number of punches (1 to 4)
-        return [random.choice(punches) for _ in range(num_punches)]
+        if num != 0:
+            num_punches = random.randint(1, num)  # Generate a random number of punches (1 to 4)
+            return [random.choice(punches) for _ in range(num_punches)]
 
     current_combination = generate_random_combination()
-    print(f"Target Combination: {current_combination}")
-    speak_combination(current_combination)
 
-    new_combination_callback(',  '.join(current_combination))
+    if current_combination != None:
+        speak_combination(current_combination)
+
+        new_combination_callback(',  '.join(current_combination))
 
     red_score = 0
     blue_score = 0
     detected_punches_red = []
     detected_punches_blue = []
 
-    while not should_stop():
+    while not should_stop() and current_combination != None:
         success, img = cap.read()
         if not success:
             break
@@ -384,7 +380,6 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                     save_punch_history(punch_history)
                     if flash_screen_callback is not None:
                         flash_screen_callback('red')
-                    print(f"Red: {detected_punches_red}")
 
         # Detect blue punches
         contours_blue, _ = cv2.findContours(mask_blue, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -398,14 +393,12 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                     detected_punches_blue.append(f'{body_part}')
                     if flash_screen_callback is not None:
                         flash_screen_callback('blue')
-                    print(f"Blue: {detected_punches_blue}")
 
         if track_punches_flag():
             # Check if Red has thrown enough punches for a combination
             if len(detected_punches_red) >= len(current_combination):
                 if detected_punches_red == current_combination:
                     red_score += 1
-                    print("Red scores a point!")
                     punch_history["Correct Combinations"] += 1
                     save_punch_history(punch_history)
                     red_score_callback(red_score)
@@ -413,13 +406,11 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
                     play_correct()
                     # Generate a new combination and reset detected punches
                     current_combination = generate_random_combination()
-                    print(f"New Target Combination: {current_combination}")
                     speak_combination(current_combination)
                     detected_punches_red = []
                     detected_punches_blue = []
                     new_combination_callback(',  '.join(current_combination))
                 else:
-                    print("Red threw an incorrect combination. Try Again.")
                     flash_screen_callback('red')  # Red flash to indicate error
                     play_incorrect()
                     detected_punches_red = []
@@ -430,19 +421,16 @@ def run_competition_mode(update_gui_func=None, track_punches_flag=lambda: True, 
             if len(detected_punches_blue) >= len(current_combination):
                 if detected_punches_blue == current_combination:
                     blue_score += 1
-                    print("Blue scores a point!")
                     blue_score_callback(blue_score)
                     flash_screen_callback('blue')
                     play_correct()
                     # Generate a new combination and reset detected punches
                     current_combination = generate_random_combination()
-                    print(f"New Target Combination: {current_combination}")
                     speak_combination(current_combination)
                     detected_punches_red = []
                     detected_punches_blue = []
                     new_combination_callback(',  '.join(current_combination))
                 else:
-                    print("Blue threw an incorrect combination. Try Again.")
                     flash_screen_callback('blue')  # Blue flash to indicate error
                     play_incorrect()
                     detected_punches_blue = []  # Reset blue's punches after evaluation
