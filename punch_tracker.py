@@ -188,7 +188,7 @@ def run_training_mode(update_gui_func=None, track_punches_flag=lambda: True, fla
             elif skill_level == "Advanced":
                 num = 7
         if num != 0:
-            num_punches = random.randint(1, num)  # Generate a random number of punches (1 to 4)
+            num_punches = random.randint(1, num)
             return [random.choice(punches) for _ in range(num_punches)]
 
     current_combination = generate_random_combination()
