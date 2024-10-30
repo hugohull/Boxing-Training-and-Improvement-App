@@ -1,6 +1,6 @@
 # Boxing App README
 
-The boxing app that uses the webcam to provide punch tracking and training to the user.
+My end of year project which achieved a first at degree level. It is a boxing training and improvement desktop app that uses the webcam to provide punch tracking and training to the user. It utilises OpenCV libraries in a way that was not previously done before.
 
 ## Table of Contents
 - [Installation](#installation)
